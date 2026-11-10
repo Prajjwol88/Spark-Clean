@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Product - SparkClean Ltd</title></head>
+<body>
+<header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="menu.html">Main menu</a><a href="stock.html">Stock</a><a href="shop.html">Shop</a><a href="#" id="logout">Log out</a></nav></header>
+<main>
+  <div class="card" style="max-width:560px">
+    <h1 id="title">Add product</h1>
+    <div class="error" id="error" hidden></div>
+    <form id="productForm">
+      <label for="productName">Product name</label>
+      <input type="text" id="productName" name="ProductName">
+      <label for="category">Category</label>
+      <input type="text" id="category" name="Category" placeholder="e.g. Sprays, Kitchen, Floor Care">
+      <label for="price">Price (£)</label>
+      <input type="text" id="price" name="Price" placeholder="e.g. 2.49">
+      <label for="quantityInStock">Quantity in stock</label>
+      <input type="text" id="quantityInStock" name="QuantityInStock">
+      <label for="dateAdded">Date added</label>
+      <input type="date" id="dateAdded" name="DateAdded">
+      <label class="checkbox"><input type="checkbox" id="available" name="Available" checked> Available on the website</label>
+      <p>
+        <button class="btn" type="submit">OK</button>
+        <a class="btn secondary" href="stock.html">Cancel</a>
+      </p>
+    </form>
+  </div>
+</main>
+<script src="js/common.js"></script>
+<script src="js/stock-edit.js"></script>
+</body>
+</html>

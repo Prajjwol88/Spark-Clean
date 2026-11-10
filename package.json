@@ -1,0 +1,18 @@
+{
+  "name": "sparkclean-stock",
+  "version": "1.0.0",
+  "description": "SparkClean Ltd - Stock Management component (Bibek)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test --test-concurrency=1 tests/*.test.js",
+    "set-password": "node tools/set-password.js"
+  },
+  "author": "Bibek",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^5.3.0",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.24.6"
+  }
+}

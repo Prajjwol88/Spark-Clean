@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Delete product - SparkClean Ltd</title></head>
+<body>
+<header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="menu.html">Main menu</a><a href="stock.html">Stock</a><a href="shop.html">Shop</a><a href="#" id="logout">Log out</a></nav></header>
+<main>
+  <div class="card" style="max-width:560px">
+    <h1>Delete product</h1>
+    <div class="error" id="error" hidden></div>
+    <p>Are you sure you want to delete <strong id="productName">this product</strong> (product <span id="productNo"></span>)?</p>
+    <p class="muted">If this product is on an order it will be marked as unavailable instead, so the order history stays correct.</p>
+    <p>
+      <button class="btn danger" id="confirmDelete" type="button">Yes, delete</button>
+      <a class="btn secondary" href="stock.html">No, go back</a>
+    </p>
+  </div>
+</main>
+<script src="js/common.js"></script>
+<script src="js/stock-delete.js"></script>
+</body>
+</html>

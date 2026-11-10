@@ -1,0 +1,69 @@
+/* SparkClean Ltd - shared styles */
+:root {
+  --teal: #0e7c86;
+  --teal-dark: #0a5f67;
+  --gold: #f5a623;
+  --ink: #1f2a30;
+  --muted: #5b6b73;
+  --line: #d9e2e5;
+  --bg: #f4f8f9;
+  --error: #b42318;
+  --ok: #1a7f37;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); background: var(--bg); }
+header { background: var(--teal); color: #fff; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+header .brand { font-size: 22px; font-weight: 700; }
+header .brand span { color: var(--gold); }
+header nav a { color: #fff; margin-left: 18px; text-decoration: none; }
+header nav a:hover { text-decoration: underline; }
+main { max-width: 1000px; margin: 28px auto; padding: 0 16px; }
+h1 { margin: 0 0 16px; font-size: 26px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+.narrow { max-width: 420px; margin: 60px auto; }
+label { display: block; font-weight: 600; margin: 12px 0 4px; }
+input[type=text], input[type=password], input[type=number], input[type=date] {
+  width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 15px;
+}
+.checkbox { display: flex; gap: 8px; align-items: center; margin-top: 14px; font-weight: 600; }
+.btn { display: inline-block; background: var(--teal); color: #fff; border: 0; border-radius: 6px; padding: 9px 16px;
+       font-size: 15px; cursor: pointer; text-decoration: none; }
+.btn:hover { background: var(--teal-dark); }
+.btn.secondary { background: #fff; color: var(--teal); border: 1px solid var(--teal); }
+.btn.danger { background: var(--error); }
+.btn.small { padding: 5px 10px; font-size: 13px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.toolbar form { display: flex; gap: 8px; align-items: flex-end; }
+.toolbar input { width: 200px; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); }
+th { background: #eef5f6; }
+.num { text-align: right; }
+.tag { padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.tag.yes { background: #e3f4e8; color: var(--ok); }
+.tag.no { background: #fde8e7; color: var(--error); }
+.low { color: var(--error); font-weight: 700; }
+.message { background: #e8f4f5; border-left: 4px solid var(--teal); padding: 10px 14px; margin-bottom: 16px; }
+.error { background: #fde8e7; border-left: 4px solid var(--error); color: var(--error); padding: 10px 14px; margin-bottom: 16px; }
+.menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.menu a { display: block; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 22px;
+          text-decoration: none; color: var(--ink); }
+.menu a strong { display: block; font-size: 18px; color: var(--teal); margin-bottom: 6px; }
+.menu a.disabled { opacity: 0.55; pointer-events: none; }
+.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.product { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.product .price { font-size: 20px; font-weight: 700; color: var(--teal); }
+.muted { color: var(--muted); }
+
+/* keep hidden message boxes hidden */
+[hidden] { display: none !important; }
+
+/* phones and small screens */
+@media (max-width: 700px) {
+  header { flex-wrap: wrap; gap: 8px; padding: 12px 16px; }
+  header nav a { margin: 0 14px 0 0; }
+  .toolbar form { flex-wrap: wrap; width: 100%; }
+  .toolbar input { width: 100%; }
+  .toolbar form > div { flex: 1 1 100%; }
+  table { display: block; overflow-x: auto; }
+}

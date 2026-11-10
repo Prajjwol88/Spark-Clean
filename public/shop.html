@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Shop - SparkClean Ltd</title></head>
+<body>
+<header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="shop.html">Shop</a><a href="login.html">Staff login</a></nav></header>
+<main>
+  <h1>Cleaning products</h1>
+  <div class="card toolbar">
+    <form method="get" action="shop.html">
+      <div><label for="filter">Search by name or category</label>
+        <input type="text" id="filter" name="filter"></div>
+      <button class="btn" type="submit">Search</button>
+      <a class="btn secondary" href="shop.html">Clear</a>
+    </form>
+  </div>
+  <div class="message" id="message" hidden></div>
+  <div class="products" id="products"></div>
+</main>
+<script src="js/common.js"></script>
+<script src="js/shop.js"></script>
+</body>
+</html>

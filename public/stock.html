@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Stock - SparkClean Ltd</title></head>
+<body>
+<header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="menu.html">Main menu</a><a href="stock.html">Stock</a><a href="shop.html">Shop</a><a href="#" id="logout">Log out</a></nav></header>
+<main>
+  <h1>Stock Management</h1>
+  <div class="message" id="message" hidden></div>
+
+  <div class="card toolbar">
+    <form method="get" action="stock.html">
+      <div><label for="find">Find by product number</label>
+        <input type="number" id="find" name="find" min="1"></div>
+      <button class="btn" type="submit">Find</button>
+    </form>
+    <form method="get" action="stock.html">
+      <div><label for="filter">Filter by name or category</label>
+        <input type="text" id="filter" name="filter"></div>
+      <button class="btn" type="submit">Apply</button>
+      <a class="btn secondary" href="stock.html">Clear</a>
+    </form>
+    <a class="btn secondary" href="stock.html?report=low">Low stock report</a>
+    <a class="btn" href="stock-edit.html">+ Add product</a>
+  </div>
+
+  <h2><span id="heading">All products</span> <span class="muted" id="count"></span></h2>
+  <table>
+    <thead>
+      <tr><th>No.</th><th>Product name</th><th>Category</th><th class="num">Price</th>
+          <th class="num">In stock</th><th>Date added</th><th>Available</th><th></th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+<script src="js/common.js"></script>
+<script src="js/stock.js"></script>
+</body>
+</html>
