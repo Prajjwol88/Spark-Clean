@@ -102,3 +102,20 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- Client Management - Prajjwol
+
+DROP PROCEDURE IF EXISTS sproc_tblClient_FilterByClientNo;
+
+DELIMITER $$
+
+CREATE PROCEDURE sproc_tblClient_FilterByClientNo(
+    IN p_ClientNo INT
+)
+BEGIN
+    SELECT *
+    FROM tblclient
+    WHERE ClientNo = p_ClientNo;
+END$$
+
+DELIMITER ;

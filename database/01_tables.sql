@@ -35,3 +35,18 @@ CREATE TABLE tblOrderLine (
     PRIMARY KEY (OrderLineNo),
     FOREIGN KEY (ProductNo) REFERENCES tblStock (ProductNo)
 );
+
+-- ------------------------------------------------------------
+-- tblclient (Client Management component - Prajjwol)
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS tblclient (
+    ClientNo       INT NOT NULL AUTO_INCREMENT,
+    FullName       VARCHAR(100) NOT NULL,
+    Email          VARCHAR(250) NOT NULL UNIQUE,
+    Address        VARCHAR(500) NOT NULL,
+    Postcode       VARCHAR(20) NOT NULL,
+    DateRegistered DATE NOT NULL,
+    Active         TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (ClientNo)
+);

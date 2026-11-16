@@ -15,3 +15,16 @@ INSERT INTO tblStock (ProductName, Category, Price, QuantityInStock, DateAdded, 
 
 -- one order line so the delete rule can be tested (product 1 has been ordered)
 INSERT INTO tblOrderLine (OrderNo, ProductNo, Quantity) VALUES (1, 1, 2);
+
+-- ------------------------------------------------------------
+-- Client Management test data - Prajjwol
+-- ------------------------------------------------------------
+
+INSERT INTO tblclient
+    (FullName, Email, Address, Postcode, DateRegistered, Active)
+VALUES
+    ('Aarav Sharma', 'aarav@example.com', 'Copenhagen', '2200', CURDATE(), 1),
+    ('Emma Jensen', 'emma@example.com', 'Frederiksberg', '2000', CURDATE(), 1),
+    ('Oliver Nielsen', 'oliver@example.com', 'Herlev', '2730', CURDATE(), 1)
+ON DUPLICATE KEY UPDATE
+    ClientNo = ClientNo;
