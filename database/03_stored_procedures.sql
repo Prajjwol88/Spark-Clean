@@ -119,3 +119,33 @@ BEGIN
 END$$
 
 DELIMITER ;
+-- List all clients (Client Management - Prajjwol)
+
+DROP PROCEDURE IF EXISTS sproc_tblClient_SelectAll;
+
+DELIMITER $$
+
+CREATE PROCEDURE sproc_tblClient_SelectAll()
+BEGIN
+    SELECT *
+    FROM tblclient
+    ORDER BY FullName;
+END$$
+
+DELIMITER ;
+
+-- Search clients by name (Client Management - Prajjwol)
+
+DROP PROCEDURE IF EXISTS sproc_tblClient_FilterByName;
+DELIMITER $$
+
+CREATE Procedure sproc_tblClient_FilterByName(
+IN p_Name VARCHAR(100)
+)
+BEGIN 
+SELECT *
+FROM tblClient
+ WHERE FullName LIKE CONCAT('%', p_Name, '%')
+    ORDER BY FullName;
+END$$
+DELIMITER ;
