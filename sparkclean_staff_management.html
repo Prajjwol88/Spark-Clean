@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SparkClean Ltd | Staff Management</title>
+  <style>
+    :root {
+      --navy: #17324d;
+      --blue: #2463a6;
+      --pale: #f3f6fa;
+      --border: #dce3eb;
+      --muted: #637386;
+      --green: #247a50;
+      --red: #a83a3a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--pale);
+      color: #203040;
+    }
+    header {
+      background: var(--navy);
+      color: white;
+      padding: 22px max(24px, calc((100% - 1120px) / 2));
+    }
+    header h1 { margin: 0 0 5px; font-size: 24px; }
+    header p { margin: 0; color: #d8e5f1; }
+    main { max-width: 1120px; margin: 28px auto; padding: 0 20px 40px; }
+    .notice {
+      padding: 12px 15px;
+      background: #fff8df;
+      border: 1px solid #ead99b;
+      border-radius: 8px;
+      color: #69551b;
+      margin-bottom: 20px;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .toolbar h2 { margin: 0; font-size: 21px; }
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .primary { background: var(--blue); color: white; }
+    .secondary { background: #e8eef5; color: var(--navy); }
+    .danger { background: #fae9e9; color: var(--red); }
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 200px;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    input, select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: white;
+      font: inherit;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th, td { text-align: left; padding: 13px 14px; border-bottom: 1px solid #edf0f4; }
+    th { background: #f8fafc; color: #536477; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    tr:last-child td { border-bottom: 0; }
+    .status {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 20px;
+      background: #e5f4eb;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .status.inactive { background: #f0f1f3; color: #657080; }
+    .actions { display: flex; gap: 7px; }
+    .actions button { padding: 7px 9px; font-size: 12px; }
+    .empty { padding: 28px; text-align: center; color: var(--muted); }
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #10203088;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      width: min(100%, 520px);
+      background: white;
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 16px 50px #0003;
+    }
+    .modal h2 { margin: 0 0 18px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
+    #message { min-height: 20px; margin: 12px 0 0; color: var(--red); font-size: 13px; }
+    @media (max-width: 600px) {
+      .filters, .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      main { margin-top: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SparkClean Ltd</h1>
+    <p>Staff Management System · Prototype</p>
+  </header>
+
+  <main>
+    <div class="notice">
+      <strong>Prototype only:</strong> This page uses sample data in your browser. It is not connected to MySQL and does not provide real login or account security yet. We will add those parts in later steps.
+    </div>
+
+    <div class="toolbar">
+      <h2>Staff records</h2>
+      <button class="primary" id="addButton">+ Add staff member</button>
+    </div>
+
+    <div class="filters">
+      <input id="searchInput" type="search" placeholder="Search by name, email or staff number">
+      <select id="statusFilter" aria-label="Filter by status">
+        <option value="all">All staff</option>
+        <option value="active">Active staff</option>
+        <option value="inactive">Inactive staff</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Staff No.</th><th>Full name</th><th>Email</th><th>Job role</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="staffTable"></tbody>
+      </table>
+      <div id="emptyMessage" class="empty" hidden>No matching staff records.</div>
+    </div>
+    <p id="recordCount" style="color:#637386;font-size:13px;"></p>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <section class="modal">
+      <h2 id="modalTitle">Add staff member</h2>
+      <form id="staffForm">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="fullName">Full name *</label>
+            <input id="fullName" name="fullName" required maxlength="100">
+          </div>
+          <div class="field">
+            <label for="email">Email *</label>
+            <input id="email" name="email" type="email" required maxlength="150">
+          </div>
+          <div class="field">
+            <label for="phone">Phone number</label>
+            <input id="phone" name="phone" maxlength="20">
+          </div>
+          <div class="field">
+            <label for="jobRole">Job role *</label>
+            <input id="jobRole" name="jobRole" required maxlength="50">
+          </div>
+          <div class="field">
+            <label for="startDate">Start date *</label>
+            <input id="startDate" name="startDate" type="date" required>
+          </div>
+          <div class="field">
+            <label for="hourlyRate">Hourly rate (DKK) *</label>
+            <input id="hourlyRate" name="hourlyRate" type="number" min="0" step="0.01" required>
+          </div>
+          <div class="field">
+            <label for="isManager">Manager?</label>
+            <select id="isManager" name="isManager">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        </div>
+        <p id="message" role="alert"></p>
+        <div class="form-actions">
+          <button type="button" class="secondary" id="cancelButton">Cancel</button>
+          <button type="submit" class="primary">Save staff member</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    // Sample records only. Later, these will come from the MySQL database.
+    let staff = [
+      { staffNo: 1001, fullName: "Alex Jensen", email: "alex@example.com", phone: "12345678", jobRole: "Cleaner", startDate: "2026-02-10", hourlyRate: 145, isManager: false, isActive: true },
+      { staffNo: 1002, fullName: "Sam Taylor", email: "sam@example.com", phone: "22334455", jobRole: "Team Manager", startDate: "2025-11-03", hourlyRate: 190, isManager: true, isActive: true },
+      { staffNo: 1003, fullName: "Jamie Lee", email: "jamie@example.com", phone: "33445566", jobRole: "Supervisor", startDate: "2025-08-18", hourlyRate: 170, isManager: false, isActive: false }
+    ];
+
+    let editingStaffNo = null;
+    const tableBody = document.getElementById("staffTable");
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const staffForm = document.getElementById("staffForm");
+    const message = document.getElementById("message");
+
+    function renderStaff() {
+      const search = searchInput.value.trim().toLowerCase();
+      const status = statusFilter.value;
+
+      const filtered = staff.filter(person => {
+        const matchesSearch =
+          String(person.staffNo).includes(search) ||
+          person.fullName.toLowerCase().includes(search) ||
+          person.email.toLowerCase().includes(search);
+
+        const matchesStatus =
+          status === "all" ||
+          (status === "active" && person.isActive) ||
+          (status === "inactive" && !person.isActive);
+
+        return matchesSearch && matchesStatus;
+      });
+
+      tableBody.innerHTML = "";
+      document.getElementById("emptyMessage").hidden = filtered.length !== 0;
+
+      filtered.forEach(person => {
+        const row = document.createElement("tr");
+        const values = [
+          person.staffNo,
+          person.fullName,
+          person.email,
+          person.jobRole
+        ];
+
+        values.forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+
+        const statusCell = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = person.isActive ? "status" : "status inactive";
+        badge.textContent = person.isActive ? "Active" : "Inactive";
+        statusCell.appendChild(badge);
+        row.appendChild(statusCell);
+
+        const actionsCell = document.createElement("td");
+        actionsCell.className = "actions";
+
+        const editButton = document.createElement("button");
+        editButton.className = "secondary";
+        editButton.textContent = "Edit";
+        editButton.addEventListener("click", () => openEditForm(person.staffNo));
+
+        const statusButton = document.createElement("button");
+        statusButton.className = person.isActive ? "danger" : "secondary";
+        statusButton.textContent = person.isActive ? "Deactivate" : "Activate";
+        statusButton.addEventListener("click", () => toggleStatus(person.staffNo));
+
+        actionsCell.append(editButton, statusButton);
+        row.appendChild(actionsCell);
+        tableBody.appendChild(row);
+      });
+
+      document.getElementById("recordCount").textContent =
+        `Showing ${filtered.length} of ${staff.length} sample records`;
+    }
+
+    function openForm(person = null) {
+      staffForm.reset();
+      message.textContent = "";
+      editingStaffNo = person ? person.staffNo : null;
+      document.getElementById("modalTitle").textContent =
+        person ? "Edit staff member" : "Add staff member";
+
+      if (person) {
+        document.getElementById("fullName").value = person.fullName;
+        document.getElementById("email").value = person.email;
+        document.getElementById("phone").value = person.phone;
+        document.getElementById("jobRole").value = person.jobRole;
+        document.getElementById("startDate").value = person.startDate;
+        document.getElementById("hourlyRate").value = person.hourlyRate;
+        document.getElementById("isManager").value = person.isManager ? "yes" : "no";
+      }
+
+      modalBackdrop.classList.add("open");
+      document.getElementById("fullName").focus();
+    }
+
+    function openEditForm(staffNo) {
+      const person = staff.find(item => item.staffNo === staffNo);
+      if (person) openForm(person);
+    }
+
+    function closeForm() {
+      modalBackdrop.classList.remove("open");
+      editingStaffNo = null;
+    }
+
+    function toggleStatus(staffNo) {
+      const person = staff.find(item => item.staffNo === staffNo);
+      if (!person) return;
+      person.isActive = !person.isActive;
+      renderStaff();
+    }
+
+    document.getElementById("addButton").addEventListener("click", () => openForm());
+    document.getElementById("cancelButton").addEventListener("click", closeForm);
+    searchInput.addEventListener("input", renderStaff);
+    statusFilter.addEventListener("change", renderStaff);
+
+    staffForm.addEventListener("submit", event => {
+      event.preventDefault();
+      message.textContent = "";
+
+      const formData = new FormData(staffForm);
+      const fullName = formData.get("fullName").trim();
+      const email = formData.get("email").trim().toLowerCase();
+      const startDate = formData.get("startDate");
+      const hourlyRate = Number(formData.get("hourlyRate"));
+
+      if (new Date(startDate + "T00:00:00") > new Date(new Date().toDateString())) {
+        message.textContent = "Start date cannot be in the future.";
+        return;
+      }
+
+      if (!Number.isFinite(hourlyRate) || hourlyRate < 0) {
+        message.textContent = "Please enter a valid hourly rate.";
+        return;
+      }
+
+      const duplicateEmail = staff.some(person =>
+        person.email.toLowerCase() === email && person.staffNo !== editingStaffNo
+      );
+      if (duplicateEmail) {
+        message.textContent = "That email address is already in use.";
+        return;
+      }
+
+      const record = {
+        staffNo: editingStaffNo ?? (staff.length ? Math.max(...staff.map(p => p.staffNo)) + 1 : 1001),
+        fullName,
+        email,
+        phone: formData.get("phone").trim(),
+        jobRole: formData.get("jobRole").trim(),
+        startDate,
+        hourlyRate,
+        isManager: formData.get("isManager") === "yes",
+        isActive: editingStaffNo
+          ? staff.find(person => person.staffNo === editingStaffNo).isActive
+          : true
+      };
+
+      if (editingStaffNo) {
+        staff = staff.map(person => person.staffNo === editingStaffNo ? record : person);
+      } else {
+        staff.push(record);
+      }
+
+      closeForm();
+      renderStaff();
+    });
+
+    modalBackdrop.addEventListener("click", event => {
+      if (event.target === modalBackdrop) closeForm();
+    });
+
+    renderStaff();
+  </script>
+</body>
+</html>
