@@ -19,7 +19,13 @@ app.use(session({
 // ---------- login ----------
 
 // pages and API routes that only logged in staff can use
-const staffPages = ['/menu.html', '/stock.html', '/stock-edit.html', '/stock-delete.html'];
+const staffPages = [
+  '/menu.html',
+  '/stock.html',
+  '/stock-edit.html',
+  '/stock-delete.html',
+  '/client.html'
+];
 function requireLogin(req, res, next) {
   if (req.session.staffUser) return next();
   if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'Please log in.' });
