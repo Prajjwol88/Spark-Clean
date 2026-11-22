@@ -1,18 +1,24 @@
 <!DOCTYPE html>
+<!-- Presentation layer: stock list page (staff only) - list, find, filter and low stock report -->
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Stock - SparkClean Ltd</title></head>
 <body>
+<!-- page header: company name, navigation links and log out -->
 <header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="menu.html">Main menu</a><a href="stock.html">Stock</a><a href="shop.html">Shop</a><a href="#" id="logout">Log out</a></nav></header>
 <main>
   <h1>Stock Management</h1>
+  <!-- message box: e.g. "Product 12 added." or "No products found." -->
   <div class="message" id="message" hidden></div>
 
+  <!-- toolbar: find, filter, low stock report and add product -->
   <div class="card toolbar">
+    <!-- find one product by its product number (clsStock.Find) -->
     <form method="get" action="stock.html">
       <div><label for="find">Find by product number</label>
         <input type="number" id="find" name="find" min="1"></div>
       <button class="btn" type="submit">Find</button>
     </form>
+    <!-- filter by name or category (clsStockCollection.ReportByNameOrCategory) -->
     <form method="get" action="stock.html">
       <div><label for="filter">Filter by name or category</label>
         <input type="text" id="filter" name="filter"></div>
@@ -23,6 +29,7 @@
     <a class="btn" href="stock-edit.html">+ Add product</a>
   </div>
 
+  <!-- product table: rows are added by stock.js; low stock is shown in red and hazard warnings in orange -->
   <h2><span id="heading">All products</span> <span class="muted" id="count"></span></h2>
   <table>
     <thead>
@@ -32,6 +39,7 @@
     <tbody id="rows"></tbody>
   </table>
 </main>
+<!-- shared helpers, then the script for this page -->
 <script src="js/common.js"></script>
 <script src="js/stock.js"></script>
 </body>

@@ -1,12 +1,17 @@
 <!DOCTYPE html>
+<!-- Presentation layer: add / edit product page (staff only) -->
+<!-- stock-edit.html adds a new product; stock-edit.html?no=3 edits product 3 -->
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Product - SparkClean Ltd</title></head>
 <body>
+<!-- page header: company name, navigation links and log out -->
 <header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="menu.html">Main menu</a><a href="stock.html">Stock</a><a href="shop.html">Shop</a><a href="#" id="logout">Log out</a></nav></header>
 <main>
   <div class="card" style="max-width:560px">
     <h1 id="title">Add product</h1>
+    <!-- error box: shows every problem found by clsStock.Valid on the server -->
     <div class="error" id="error" hidden></div>
+    <!-- product form: one box for each attribute of tblStock -->
     <form id="productForm">
       <label for="productName">Product name</label>
       <input type="text" id="productName" name="ProductName">
@@ -18,9 +23,11 @@
       <input type="text" id="quantityInStock" name="QuantityInStock">
       <label for="dateAdded">Date added</label>
       <input type="date" id="dateAdded" name="DateAdded">
+      <!-- Sprint 5: optional hazard warning, shown on the stock list and the shop -->
       <label for="hazardWarning">Hazard warning <span class="muted">(optional - for chemicals such as bleach)</span></label>
       <input type="text" id="hazardWarning" name="HazardWarning" maxlength="100" placeholder="e.g. Corrosive - keep out of reach of children">
       <label class="checkbox"><input type="checkbox" id="available" name="Available" checked> Available on the website</label>
+      <!-- OK saves the product (Add or Update); Cancel goes back without saving -->
       <p>
         <button class="btn" type="submit">OK</button>
         <a class="btn secondary" href="stock.html">Cancel</a>
@@ -28,6 +35,7 @@
     </form>
   </div>
 </main>
+<!-- shared helpers, then the script for this page -->
 <script src="js/common.js"></script>
 <script src="js/stock-edit.js"></script>
 </body>

@@ -1,11 +1,15 @@
 <!DOCTYPE html>
+<!-- Presentation layer: main menu shown after staff log in (staff only) -->
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Main menu - SparkClean Ltd</title></head>
 <body>
+<!-- page header: company name, navigation links and log out -->
 <header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="menu.html">Main menu</a><a href="stock.html">Stock</a><a href="shop.html">Shop</a><a href="#" id="logout">Log out</a></nav></header>
 <main>
   <h1>Main menu</h1>
+  <!-- name of the logged in user, filled in from /api/me -->
   <p class="muted">Logged in as <strong id="staffUser">staff</strong></p>
+  <!-- menu buttons: Stock Management (Bibek), Client Management (Prajjwol), change log and shop -->
   <div class="menu">
     <a href="stock.html"><strong>Stock Management</strong>Add, edit, delete, find and filter products</a>
     <a href="stock.html?report=low"><strong>Low Stock Report</strong>Products that need reordering</a>
