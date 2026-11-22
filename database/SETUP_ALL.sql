@@ -166,3 +166,97 @@ DELIMITER ;
 CREATE USER IF NOT EXISTS 'sparkclean'@'localhost' IDENTIFIED BY 'sparkclean';
 GRANT ALL PRIVILEGES ON sparkclean.* TO 'sparkclean'@'localhost';
 FLUSH PRIVILEGES;
+
+-- tblclient (Client Management component - Prajjwol)
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS tblclient (
+    ClientNo       INT NOT NULL AUTO_INCREMENT,
+    FullName       VARCHAR(100) NOT NULL,
+    Email          VARCHAR(250) NOT NULL UNIQUE,
+    Address        VARCHAR(500) NOT NULL,
+    Postcode       VARCHAR(20) NOT NULL,
+    DateRegistered DATE NOT NULL,
+    Active         TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (ClientNo)
+);
+-- Client Management - Prajjwol
+
+DROP PROCEDURE IF EXISTS sproc_tblClient_FilterByClientNo;
+
+DELIMITER $$
+
+CREATE PROCEDURE sproc_tblClient_FilterByClientNo(
+    IN p_ClientNo INT
+)
+BEGIN
+    SELECT *
+    FROM tblclient
+    WHERE ClientNo = p_ClientNo;
+END$$
+
+DELIMITER ;
+-- List all clients (Client Management - Prajjwol)
+
+DROP PROCEDURE IF EXISTS sproc_tblClient_SelectAll;
+
+DELIMITER $$
+
+CREATE PROCEDURE sproc_tblClient_SelectAll()
+BEGIN
+    SELECT *
+    FROM tblclient
+    ORDER BY FullName;
+END$$
+
+DELIMITER ;
+
+-- Search clients by name (Client Management - Prajjwol)
+
+DROP PROCEDURE IF EXISTS sproc_tblClient_FilterByName;
+DELIMITER $$
+
+CREATE Procedure sproc_tblClient_FilterByName(
+IN p_Name VARCHAR(100)
+)
+BEGIN 
+SELECT *
+FROM tblclient
+ WHERE FullName LIKE CONCAT('%', p_Name, '%')
+    ORDER BY FullName;
+END$$
+DELIMITER ;
+-- Client writes preserve the registration date and status when editing details.
+DROP PROCEDURE IF EXISTS sproc_tblClient_Insert;
+DROP PROCEDURE IF EXISTS sproc_tblClient_Update;
+DROP PROCEDURE IF EXISTS sproc_tblClient_SetActive;
+DELIMITER $
+
+CREATE PROCEDURE sproc_tblClient_Insert(
+    IN p_FullName VARCHAR(100), IN p_Email VARCHAR(250),
+    IN p_Address VARCHAR(500), IN p_Postcode VARCHAR(20)
+)
+BEGIN
+    INSERT INTO tblclient (FullName, Email, Address, Postcode, DateRegistered)
+    VALUES (p_FullName, p_Email, p_Address, p_Postcode, CURRENT_DATE());
+    SELECT LAST_INSERT_ID() AS ClientNo;
+END$
+
+CREATE PROCEDURE sproc_tblClient_Update(
+    IN p_ClientNo INT, IN p_FullName VARCHAR(100), IN p_Email VARCHAR(250),
+    IN p_Address VARCHAR(500), IN p_Postcode VARCHAR(20)
+)
+BEGIN
+    UPDATE tblclient
+    SET FullName = p_FullName, Email = p_Email, Address = p_Address, Postcode = p_Postcode
+    WHERE ClientNo = p_ClientNo;
+    SELECT EXISTS(SELECT 1 FROM tblclient WHERE ClientNo = p_ClientNo) AS Found;
+END$
+
+CREATE PROCEDURE sproc_tblClient_SetActive(IN p_ClientNo INT, IN p_Active TINYINT)
+BEGIN
+    UPDATE tblclient SET Active = p_Active WHERE ClientNo = p_ClientNo;
+    SELECT EXISTS(SELECT 1 FROM tblclient WHERE ClientNo = p_ClientNo) AS Found;
+END$
+
+DELIMITER ;

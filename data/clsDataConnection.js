@@ -18,14 +18,18 @@ class clsDataConnection {
   }
 
   // runs a stored procedure, fills dataTable and returns the number of rows
-  async Execute(storedProcedure) {
-    if (useLocalData) return this.runLocal(storedProcedure);
+  async Execute(storedProcedure, { allowLocal = true } = {}) {
+    if (allowLocal && useLocalData) return this.runLocal(storedProcedure);
     const placeholders = this.parameters.map(() => '?').join(', ');
     let connection;
     try {
       connection = await mysql.createConnection({ ...config, dateStrings: true });
     } catch (err) {
       // MySQL is not installed, not running, or the login/database is missing
+      if (!allowLocal) {
+        this.parameters = [];
+        throw err;
+      }
       useLocalData = true;
       console.warn('Cannot connect to MySQL (' + err.code + ': ' + err.message + ').');
       console.warn('Using the backup data file data/stock.json instead. Set up MySQL to use the stored procedures.');
@@ -36,6 +40,7 @@ class clsDataConnection {
       // a CALL returns [rows, info] when the procedure selects rows
       this.dataTable = Array.isArray(results) && Array.isArray(results[0]) ? results[0] : [];
     } catch (err) {
+      if (!allowLocal) throw err;
       throw new Error(`Error running ${storedProcedure}: ${err.message}`);
     } finally {
       this.parameters = [];

@@ -7,6 +7,9 @@ const clsStock = require('./classes/clsStock');
 const clsStaffLogin = require('./classes/clsStaffLogin');
 const clsStockCollection = require('./classes/clsStockCollection');
 
+const clsClient = require('./classes/clsClient');
+const clsClientCollection = require('./classes/clsClientCollection');
+
 const app = express();
 app.use(express.json());
 app.use(session({
@@ -170,6 +173,73 @@ app.delete('/api/stock/:no', async (req, res, next) => {
       : `Product ${product.ProductNo} is on an order, so it was marked as unavailable instead of deleted.`;
     res.json({ message });
   } catch (err) { next(err); }
+});
+
+// ---------- clients (staff) ----------
+
+const clients = express.Router();
+app.use('/api/clients', (req, res, next) => {
+  if (!req.session.staffUser) return res.status(401).json({ error: 'Please log in.' });
+  next();
+}, clients);
+
+clients.get('/', async (req, res) => {
+  const collection = new clsClientCollection();
+  await collection.LoadAll();
+  res.json(collection.ClientList);
+});
+
+clients.param('id', (req, res, next, value) => {
+  const id = Number(value);
+  if (!/^\d+$/.test(value) || id < 1 || id > 2147483647) {
+    return res.status(400).json({ error: 'Enter a valid client number.' });
+  }
+  req.clientId = id;
+  next();
+});
+
+function readClientForm(req, res, next) {
+  const { client, error } = clsClient.fromForm(req.body);
+  if (error) return res.status(400).json({ error });
+  req.client = client;
+  next();
+}
+
+clients.post('/', readClientForm, async (req, res) => {
+  const collection = new clsClientCollection();
+  collection.ThisClient = req.client;
+  const clientId = await collection.Add();
+  res.status(201).json({ clientId });
+});
+
+clients.put('/:id', readClientForm, async (req, res) => {
+  const collection = new clsClientCollection();
+  collection.ThisClient = req.client;
+  collection.ThisClient.ClientNo = req.clientId;
+  if (!(await collection.Update())) return res.status(404).json({ error: 'Client not found.' });
+  res.json({ message: 'Client updated.' });
+});
+
+clients.patch('/:id', async (req, res) => {
+  const active = req.body?.isActive;
+  if (typeof active !== 'boolean') {
+    return res.status(400).json({ error: 'Client status must be true or false.' });
+  }
+  const collection = new clsClientCollection();
+  collection.ThisClient.ClientNo = req.clientId;
+  if (!(await collection.SetActive(active))) return res.status(404).json({ error: 'Client not found.' });
+  res.json({ message: 'Client status updated.' });
+});
+
+clients.use((err, req, res, next) => {
+  if (err.code === 'ER_DUP_ENTRY') {
+    return res.status(409).json({ error: 'A client already uses that email address.' });
+  }
+  if (['ER_ACCESS_DENIED_ERROR', 'ER_BAD_DB_ERROR', 'ECONNREFUSED', 'ETIMEDOUT', 'ER_SP_DOES_NOT_EXIST'].includes(err.code)) {
+    console.error('Client Management MySQL:', err.code, err.message);
+    return res.status(503).json({ error: 'Client Management requires the SparkClean MySQL database. Check the server terminal.' });
+  }
+  next(err);
 });
 
 // ---------- shop (customers, no login) ----------

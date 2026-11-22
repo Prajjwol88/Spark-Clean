@@ -16,6 +16,10 @@ async function request(url, options = {}) {
     }
   });
 
+  if (response.status === 401) {
+    window.location.assign('/login.html');
+    throw new Error('Please log in.');
+  }
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Request failed");
   return data;
@@ -67,7 +71,7 @@ function renderClients() {
     email.textContent = client.email;
     nameCell.appendChild(email);
 
-    addCell(client.phone);
+    addCell(client.postcode);
     addCell(client.registrationDate);
 
     const statusCell = document.createElement("td");
@@ -112,7 +116,7 @@ function editClient(id) {
   document.getElementById("clientId").value = client.clientId;
   document.getElementById("fullName").value = client.fullName;
   document.getElementById("email").value = client.email;
-  document.getElementById("phone").value = client.phone;
+  document.getElementById("postcode").value = client.postcode;
   document.getElementById("address").value = client.address;
   document.getElementById("formTitle").textContent = "Edit Client";
 
@@ -143,7 +147,7 @@ form.addEventListener("submit", async event => {
   const client = {
     fullName: document.getElementById("fullName").value,
     email: document.getElementById("email").value,
-    phone: document.getElementById("phone").value,
+    postcode: document.getElementById("postcode").value,
     address: document.getElementById("address").value
   };
 

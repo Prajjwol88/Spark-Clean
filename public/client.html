@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SparkClean | Client Management</title>
+  <link rel="stylesheet" href="css/client.css">
+  <script src="js/client.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="brand">✦ SparkClean</div>
+    <nav><a href="menu.html">Main menu</a></nav>
+  </header>
+
+  <main>
+    <section class="heading">
+      <div>
+        <h1>Client Management</h1>
+        <p>Manage customer records for SparkClean Ltd.</p>
+      </div>
+      <button id="newClient">+ Add Client</button>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <span>Total Clients</span>
+        <strong id="total">0</strong>
+      </div>
+      <div class="stat">
+        <span>Active Clients</span>
+        <strong id="active">0</strong>
+      </div>
+      <div class="stat">
+        <span>Inactive Clients</span>
+        <strong id="inactive">0</strong>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <h2>Customer Records</h2>
+        <input id="search" aria-label="Search clients by name or email" placeholder="Search name or email...">
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Postcode</th>
+              <th>Registered</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientRows"></tbody>
+        </table>
+      </div>
+      <p id="empty" class="empty" hidden>No customers found.</p>
+    </section>
+
+    <section class="panel form-panel" id="formPanel" hidden>
+      <h2 id="formTitle">Add Client</h2>
+      <form id="clientForm">
+        <input type="hidden" id="clientId">
+
+        <label>Full Name
+          <input id="fullName" required maxlength="100">
+        </label>
+
+        <label>Email Address
+          <input id="email" type="email" required maxlength="250">
+        </label>
+
+        <label>Postcode
+          <input id="postcode" required maxlength="20">
+        </label>
+
+        <label>Address
+          <input id="address" required maxlength="500">
+        </label>
+
+        <div class="form-actions">
+          <button type="button" id="cancel" class="secondary">
+            Cancel
+          </button>
+          <button type="submit">Save Client</button>
+        </div>
+      </form>
+    </section>
+
+    <p id="message" role="status"></p>
+  </main>
+</body>
+</html>
+

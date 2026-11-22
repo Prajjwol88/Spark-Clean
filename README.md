@@ -50,3 +50,20 @@ In the terminal type `npm test`.
 - List, Find by product number, Filter by name or category, Low stock report (5 or fewer)
 - Validation on every field (name, category, price, quantity, date)
 - Owner-only login (hashed password, lock after 5 wrong attempts) and main menu; public shop page shows only available, in-stock products
+
+## Client Management
+
+From the existing staff main menu, open **Client Management** to list clients, search by name or email, register new clients, edit their details, or change their active status. Client records are stored in MySQL.
+
+For an existing SparkClean database, run `database/01_tables.sql` and `database/03_stored_procedures.sql` in MySQL Workbench using your setup account. These scripts create missing tables and refresh the procedures. Use `database/SETUP_ALL.sql` for a fresh setup.
+
+If your app account is `sparkclean_vscode`, start the app from the VS Code PowerShell terminal with:
+
+```powershell
+$env:SPARKCLEAN_DB_USER = 'sparkclean_vscode'
+$env:SPARKCLEAN_DB_PASSWORD = Read-Host 'MySQL password' -MaskInput
+npm start
+```
+
+The app defaults to `127.0.0.1:3306` and the `sparkclean` database. For a different server, set `SPARKCLEAN_DB_HOST` or `SPARKCLEAN_DB_PORT` in the same terminal. A VS Code database extension has its own connection settings.
+

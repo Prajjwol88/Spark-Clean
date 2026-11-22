@@ -144,8 +144,42 @@ IN p_Name VARCHAR(100)
 )
 BEGIN 
 SELECT *
-FROM tblClient
+FROM tblclient
  WHERE FullName LIKE CONCAT('%', p_Name, '%')
     ORDER BY FullName;
 END$$
+DELIMITER ;
+-- Client writes preserve the registration date and status when editing details.
+DROP PROCEDURE IF EXISTS sproc_tblClient_Insert;
+DROP PROCEDURE IF EXISTS sproc_tblClient_Update;
+DROP PROCEDURE IF EXISTS sproc_tblClient_SetActive;
+DELIMITER $
+
+CREATE PROCEDURE sproc_tblClient_Insert(
+    IN p_FullName VARCHAR(100), IN p_Email VARCHAR(250),
+    IN p_Address VARCHAR(500), IN p_Postcode VARCHAR(20)
+)
+BEGIN
+    INSERT INTO tblclient (FullName, Email, Address, Postcode, DateRegistered)
+    VALUES (p_FullName, p_Email, p_Address, p_Postcode, CURRENT_DATE());
+    SELECT LAST_INSERT_ID() AS ClientNo;
+END$
+
+CREATE PROCEDURE sproc_tblClient_Update(
+    IN p_ClientNo INT, IN p_FullName VARCHAR(100), IN p_Email VARCHAR(250),
+    IN p_Address VARCHAR(500), IN p_Postcode VARCHAR(20)
+)
+BEGIN
+    UPDATE tblclient
+    SET FullName = p_FullName, Email = p_Email, Address = p_Address, Postcode = p_Postcode
+    WHERE ClientNo = p_ClientNo;
+    SELECT EXISTS(SELECT 1 FROM tblclient WHERE ClientNo = p_ClientNo) AS Found;
+END$
+
+CREATE PROCEDURE sproc_tblClient_SetActive(IN p_ClientNo INT, IN p_Active TINYINT)
+BEGIN
+    UPDATE tblclient SET Active = p_Active WHERE ClientNo = p_ClientNo;
+    SELECT EXISTS(SELECT 1 FROM tblclient WHERE ClientNo = p_ClientNo) AS Found;
+END$
+
 DELIMITER ;
