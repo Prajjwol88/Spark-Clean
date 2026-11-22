@@ -10,7 +10,7 @@ async function loadShop() {
         <div class="muted">${escapeHtml(p.Category)}</div>
         <h3>${escapeHtml(p.ProductName)}</h3>
         <div class="price">${money(p.Price)}</div>
-        <div class="muted">${p.QuantityInStock} in stock</div>
+        <div class="muted">${p.QuantityInStock} in stock</div>${hazardBadge(p.HazardWarning)}
       </div>`).join('');
   } catch (err) {
     showBox('message', err.message);

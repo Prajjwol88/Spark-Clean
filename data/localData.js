@@ -83,6 +83,29 @@ function call(storedProcedure, params) {
       save(data);
       return [{ Result: 'Deleted' }];
     }
+    // ---------- Sprint 5 upgrades ----------
+    case 'sproc_tblStock_UpdateHazard': {
+      const p = s.find((x) => x.ProductNo === Number(params[0]));
+      if (p) p.HazardWarning = params[1] || '';
+      save(data);
+      return [];
+    }
+    case 'sproc_tblStockLog_Insert': {
+      data.log = data.log || [];
+      data.nextLogNo = data.nextLogNo || 1;
+      const [ProductNo, Action, ProductName, ChangedBy] = params;
+      const LogNo = data.nextLogNo++;
+      const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+      data.log.push({ LogNo, ProductNo: Number(ProductNo), Action, ProductName, ChangedBy, ChangedAt: now });
+      save(data);
+      return [{ LogNo }];
+    }
+    case 'sproc_tblStockLog_DeleteTestEntries':
+      data.log = (data.log || []).filter((e) => e.ChangedBy !== 'Automated test');
+      save(data);
+      return [];
+    case 'sproc_tblStockLog_SelectAll':
+      return [...(data.log || [])].sort((a, b) => b.LogNo - a.LogNo);
     default:
       throw new Error('Unknown stored procedure ' + storedProcedure);
   }

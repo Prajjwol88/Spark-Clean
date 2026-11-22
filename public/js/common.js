@@ -34,6 +34,12 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// safety warning shown under a hazardous product's name (Sprint 5); nothing if there is no warning
+function hazardBadge(warning) {
+  if (!warning) return '';
+  return `<div class="hazard" role="note">&#9888; ${escapeHtml(warning)}</div>`;
+}
+
 // formats 2.5 as £2.50 and 2026-10-05 as 05/10/2026
 function money(value) { return '£' + Number(value).toFixed(2); }
 function ukDate(value) { const [y, m, d] = value.split('-'); return `${d}/${m}/${y}`; }

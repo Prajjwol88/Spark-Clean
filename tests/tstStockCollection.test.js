@@ -149,3 +149,77 @@ test('LowStockReportOK', async () => {
   assert.ok(all.Count >= 1);
   for (const s of all.StockList) assert.ok(s.QuantityInStock <= 5);
 });
+
+// ---------- Sprint 5: hazard warnings ----------
+
+test('AddWithHazardWarningOK', async () => {
+  const all = new clsStockCollection();
+  all.ThisStock = makeProduct();
+  all.ThisStock.HazardWarning = 'Corrosive - keep out of reach of children';
+  const newNo = await all.Add();
+
+  const found = new clsStock();
+  await found.Find(newNo);
+  assert.strictEqual(found.HazardWarning, 'Corrosive - keep out of reach of children');
+
+  await all.Delete(); // tidy up
+});
+
+test('UpdateHazardWarningOK', async () => {
+  const all = new clsStockCollection();
+  all.ThisStock = makeProduct();
+  const newNo = await all.Add();
+
+  all.ThisStock.HazardWarning = 'Irritant - wear gloves';
+  await all.Update();
+  const found = new clsStock();
+  await found.Find(newNo);
+  assert.strictEqual(found.HazardWarning, 'Irritant - wear gloves');
+
+  // a blank warning removes it again
+  all.ThisStock.HazardWarning = '';
+  await all.Update();
+  await found.Find(newNo);
+  assert.strictEqual(found.HazardWarning, '');
+
+  await all.Delete(); // tidy up
+});
+
+test('HazardWarningShownOnShop', async () => {
+  const all = new clsStockCollection();
+  all.ThisStock = makeProduct();
+  all.ThisStock.ProductName = 'Hazard Test Product';
+  all.ThisStock.HazardWarning = 'Corrosive';
+  await all.Add();
+
+  const shop = new clsStockCollection();
+  await shop.ReportAvailable('Hazard Test Product');
+  assert.strictEqual(shop.Count, 1);
+  assert.strictEqual(shop.StockList[0].HazardWarning, 'Corrosive');
+
+  await all.Delete(); // tidy up
+});
+
+// ---------- security ----------
+
+test('FilterBlocksSqlInjection', async () => {
+  // the filter text is passed to the stored procedure as a parameter, never joined into SQL
+  const all = new clsStockCollection();
+  await all.ReportByNameOrCategory("' OR '1'='1");
+  assert.strictEqual(all.Count, 0);
+});
+
+test('ScriptInProductNameStoredAsPlainText', async () => {
+  // a product name containing HTML is saved as text; the pages escape it before showing it
+  const scriptName = '<script>alert(1)</script>';
+  const all = new clsStockCollection();
+  all.ThisStock = makeProduct();
+  all.ThisStock.ProductName = scriptName;
+  const newNo = await all.Add();
+
+  const found = new clsStock();
+  assert.strictEqual(await found.Find(newNo), true);
+  assert.strictEqual(found.ProductName, scriptName);
+
+  await all.Delete(); // tidy up
+});

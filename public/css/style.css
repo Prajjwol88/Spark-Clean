@@ -55,6 +55,10 @@ th { background: #eef5f6; }
 .product .price { font-size: 20px; font-weight: 700; color: var(--teal); }
 .muted { color: var(--muted); }
 
+/* Sprint 5: hazard warning for chemical products */
+.hazard { margin-top: 6px; background: #fff4e0; border-left: 4px solid var(--gold); color: #7a4b00;
+          padding: 4px 8px; font-size: 13px; font-weight: 600; border-radius: 4px; }
+
 /* keep hidden message boxes hidden */
 [hidden] { display: none !important; }
 
