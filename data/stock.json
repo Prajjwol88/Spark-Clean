@@ -1,0 +1,102 @@
+{
+  "nextProductNo": 11,
+  "orderLines": [
+    {
+      "OrderNo": 1,
+      "ProductNo": 1,
+      "Quantity": 2
+    }
+  ],
+  "stock": [
+    {
+      "ProductNo": 1,
+      "ProductName": "Multi-Surface Spray 750ml",
+      "Category": "Sprays",
+      "Price": 2.49,
+      "QuantityInStock": 40,
+      "DateAdded": "2026-10-01",
+      "Available": 1
+    },
+    {
+      "ProductNo": 2,
+      "ProductName": "Glass Cleaner 500ml",
+      "Category": "Sprays",
+      "Price": 1.99,
+      "QuantityInStock": 25,
+      "DateAdded": "2026-10-01",
+      "Available": 1
+    },
+    {
+      "ProductNo": 3,
+      "ProductName": "Floor Cleaner 1L",
+      "Category": "Floor Care",
+      "Price": 3.75,
+      "QuantityInStock": 18,
+      "DateAdded": "2026-10-05",
+      "Available": 1
+    },
+    {
+      "ProductNo": 4,
+      "ProductName": "Washing Up Liquid 900ml",
+      "Category": "Kitchen",
+      "Price": 1.5,
+      "QuantityInStock": 60,
+      "DateAdded": "2026-10-05",
+      "Available": 1
+    },
+    {
+      "ProductNo": 5,
+      "ProductName": "Laundry Detergent 2L",
+      "Category": "Laundry",
+      "Price": 6.99,
+      "QuantityInStock": 12,
+      "DateAdded": "2026-10-10",
+      "Available": 1
+    },
+    {
+      "ProductNo": 6,
+      "ProductName": "Microfibre Cloths (5 pack)",
+      "Category": "Cloths",
+      "Price": 4.25,
+      "QuantityInStock": 4,
+      "DateAdded": "2026-10-12",
+      "Available": 1
+    },
+    {
+      "ProductNo": 7,
+      "ProductName": "Spin Mop and Bucket",
+      "Category": "Floor Care",
+      "Price": 19.99,
+      "QuantityInStock": 3,
+      "DateAdded": "2026-10-15",
+      "Available": 1
+    },
+    {
+      "ProductNo": 8,
+      "ProductName": "Toilet Cleaner Gel 750ml",
+      "Category": "Bathroom",
+      "Price": 1.89,
+      "QuantityInStock": 35,
+      "DateAdded": "2026-10-18",
+      "Available": 1
+    },
+    {
+      "ProductNo": 9,
+      "ProductName": "Oven Cleaner 500ml",
+      "Category": "Kitchen",
+      "Price": 4.49,
+      "QuantityInStock": 0,
+      "DateAdded": "2026-10-20",
+      "Available": 1
+    },
+    {
+      "ProductNo": 10,
+      "ProductName": "Bleach 1L (old stock)",
+      "Category": "Bathroom",
+      "Price": 0.99,
+      "QuantityInStock": 10,
+      "DateAdded": "2026-09-01",
+      "Available": 0
+    }
+  ]
+}
