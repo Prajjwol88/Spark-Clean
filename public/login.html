@@ -4,11 +4,21 @@
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Stock Manager login - SparkClean Ltd</title></head>
 <body>
-<header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="shop.html">Shop</a></nav></header>
-<main>
+<header class="shop-header">
+  <div class="brand">Spark Clean Ltd</div>
+  <nav>
+    <a class="shop-link" href="shop.html">Shop</a>
+    <a class="manager-login" href="login.html">Manager Login</a>
+  </nav>
+</header>
+<main class="login-layout">
+  <section class="shop-hero">
+  <h2>Cleaning supplies</h2>
+  <a class="main-shop-browse" href="shop.html">Browse shop</a>
+</section>
   <div class="card narrow">
-    <h1>Stock Manager login</h1>
-    <p class="muted">This page is for the Stock Manager only. Other staff log in to their own pages.</p>
+    <h1>Manager login</h1>
+    <p class="muted">This page is for the Managers.</p>
     <div class="error" id="error" hidden></div>
     <!-- login form: login.js sends the username and password to /api/login -->
     <form id="loginForm">
