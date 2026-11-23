@@ -99,3 +99,17 @@ test('DateAddedTomorrow', () => assert.notStrictEqual(vDate(addDays(1)), ''));
 test('DateAddedExtremeMax', () => assert.notStrictEqual(vDate(addDays(365 * 100)), ''));
 test('DateAddedInvalidData', () => assert.notStrictEqual(vDate('not a date'), ''));
 test('DateAddedNotRealDate', () => assert.notStrictEqual(vDate('2026-02-30'), ''));
+
+// ---------- HazardWarning (Sprint 5: optional, 0 to 100 characters) ----------
+
+const vHazard = (h) => new clsStock().Valid(productName, category, price, quantityInStock, dateAdded, h);
+test('HazardWarningPropertyOK', () => { const s = new clsStock(); s.HazardWarning = 'Corrosive'; assert.strictEqual(s.HazardWarning, 'Corrosive'); });
+test('HazardWarningDefaultBlank', () => assert.strictEqual(new clsStock().HazardWarning, ''));
+test('HazardWarningNotGivenOK', () => assert.strictEqual(new clsStock().Valid(productName, category, price, quantityInStock, dateAdded), ''));
+test('HazardWarningBlankOK', () => assert.strictEqual(vHazard(''), ''));
+test('HazardWarningMinPlusOne', () => assert.strictEqual(vHazard(repeat(1)), ''));
+test('HazardWarningMid', () => assert.strictEqual(vHazard(repeat(50)), ''));
+test('HazardWarningMaxLessOne', () => assert.strictEqual(vHazard(repeat(99)), ''));
+test('HazardWarningMax', () => assert.strictEqual(vHazard(repeat(100)), ''));
+test('HazardWarningMaxPlusOne', () => assert.notStrictEqual(vHazard(repeat(101)), ''));
+test('HazardWarningExtremeMax', () => assert.notStrictEqual(vHazard(repeat(500)), ''));

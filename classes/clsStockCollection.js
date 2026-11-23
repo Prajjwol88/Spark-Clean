@@ -23,6 +23,7 @@ class clsStockCollection {
     this.addDetailParameters(db);
     await db.Execute('sproc_tblStock_Insert');
     this.ThisStock.ProductNo = Number(db.dataTable[0].ProductNo);
+    await this.saveHazardWarning();
     return this.ThisStock.ProductNo;
   }
 
@@ -32,6 +33,15 @@ class clsStockCollection {
     db.AddParameter('@ProductNo', this.ThisStock.ProductNo);
     this.addDetailParameters(db);
     await db.Execute('sproc_tblStock_Update');
+    await this.saveHazardWarning();
+  }
+
+  // saves the hazard warning of ThisStock (Sprint 5 upgrade)
+  async saveHazardWarning() {
+    const db = new clsDataConnection();
+    db.AddParameter('@ProductNo', this.ThisStock.ProductNo);
+    db.AddParameter('@HazardWarning', (this.ThisStock.HazardWarning || '').trim());
+    await db.Execute('sproc_tblStock_UpdateHazard');
   }
 
   // deletes ThisStock; if it is on an order it is marked unavailable instead

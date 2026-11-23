@@ -1,10 +1,14 @@
 <!DOCTYPE html>
+<!-- Presentation layer: public shop page for customers (no login needed) -->
+<!-- shows only products that are available and in stock (sproc_tblStock_SelectAvailable) -->
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Shop - SparkClean Ltd</title></head>
 <body>
+<!-- page header: company name, shop link and staff login link -->
 <header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="shop.html">Shop</a><a href="login.html">Staff login</a></nav></header>
 <main>
   <h1>Cleaning products</h1>
+  <!-- search box: customers search by product name or category -->
   <div class="card toolbar">
     <form method="get" action="shop.html">
       <div><label for="filter">Search by name or category</label>
@@ -13,9 +17,12 @@
       <a class="btn secondary" href="shop.html">Clear</a>
     </form>
   </div>
+  <!-- message box: e.g. "No products found." -->
   <div class="message" id="message" hidden></div>
+  <!-- product cards: added by shop.js, with a hazard warning for products such as bleach -->
   <div class="products" id="products"></div>
 </main>
+<!-- shared helpers, then the script for this page -->
 <script src="js/common.js"></script>
 <script src="js/shop.js"></script>
 </body>

@@ -10,6 +10,7 @@ class clsStock {
     this.QuantityInStock = 0;    // integer, 0 to 100000
     this.DateAdded = '';         // date as yyyy-mm-dd
     this.Available = true;       // boolean, shown on the website or not
+    this.HazardWarning = '';     // text, up to 100 characters (Sprint 5), blank = no warning
   }
 
   // finds one product by its product number; returns true if found
@@ -33,11 +34,13 @@ class clsStock {
     this.QuantityInStock = Number(row.QuantityInStock);
     this.DateAdded = String(row.DateAdded).substring(0, 10);
     this.Available = Boolean(Number(row.Available));
+    this.HazardWarning = row.HazardWarning || '';
   }
 
   // checks the values typed in by staff
   // returns "" if valid, otherwise a message listing every problem
-  Valid(productName, category, price, quantityInStock, dateAdded) {
+  // hazardWarning is optional (Sprint 5), so the original five-value calls still work
+  Valid(productName, category, price, quantityInStock, dateAdded, hazardWarning = '') {
     let error = '';
     const text = (v) => (v === undefined || v === null ? '' : String(v).trim());
 
@@ -69,6 +72,9 @@ class clsStock {
     if (!isRealDate(d)) error += 'The date added must be a valid date (yyyy-mm-dd). ';
     else if (d > today()) error += 'The date added may not be in the future. ';
     else if (d < '2000-01-01') error += 'The date added may not be before 2000. ';
+
+    // hazard warning: optional, at most 100 characters
+    if (text(hazardWarning).length > 100) error += 'The hazard warning must be 100 characters or fewer. ';
 
     return error.trim();
   }

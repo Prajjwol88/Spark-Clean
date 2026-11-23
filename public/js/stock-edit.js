@@ -23,6 +23,7 @@ async function loadProduct() {
     form.QuantityInStock.value = p.QuantityInStock;
     form.DateAdded.value = p.DateAdded;
     form.Available.checked = p.Available;
+    form.HazardWarning.value = p.HazardWarning || '';
   } catch (err) {
     showBox('error', err.message);
   }
@@ -36,7 +37,8 @@ form.addEventListener('submit', async (e) => {
     Price: form.Price.value,
     QuantityInStock: form.QuantityInStock.value,
     DateAdded: form.DateAdded.value,
-    Available: form.Available.checked
+    Available: form.Available.checked,
+    HazardWarning: form.HazardWarning.value
   };
   try {
     // the server checks the data with clsStock.Valid before saving

@@ -5,8 +5,8 @@ JavaScript (Node.js + Express) with HTML and CSS, MySQL stored procedures, using
 | Layer | Files |
 |---|---|
 | Presentation | `public/*.html`, `public/css/style.css`, `public/js/*.js`, `server.js` |
-| Middle (business) | `classes/clsStock.js`, `classes/clsStockCollection.js` |
-| Data | `data/clsDataConnection.js`, `database/01_tables.sql`, `02_test_data.sql`, `03_stored_procedures.sql` |
+| Middle (business) | `classes/clsStock.js`, `classes/clsStockCollection.js`, `classes/clsStaffLogin.js`, `classes/clsStockLog.js` |
+| Data | `data/clsDataConnection.js`, `database/01_tables.sql`, `02_test_data.sql`, `03_stored_procedures.sql`, `04_sprint5_upgrades.sql` |
 
 ## What you need
 1. **Node.js** (LTS version) from nodejs.org
@@ -18,6 +18,7 @@ In MySQL Workbench (or the `mysql` command line) run the three files **in order*
 1. `database/01_tables.sql`
 2. `database/02_test_data.sql`
 3. `database/03_stored_procedures.sql`
+4. `database/04_sprint5_upgrades.sql` (Sprint 5 Stock upgrades: hazard warnings and change log - run once)
 
 (Or run `database/SETUP_ALL.sql` once, which does all of this, including the MySQL login.)
 
@@ -41,15 +42,21 @@ Customer shop page (no login): **http://localhost:3000/shop.html**
 
 ## 3. Run the tests
 In the terminal type `npm test`.
-- `tests/tstStock.test.js` – properties and Valid boundary tests (54 tests, no database needed)
+- `tests/tstStock.test.js` – properties and Valid boundary tests, incl. hazard warning (64 tests, no database needed)
 - `tests/tstStaffLogin.test.js` – only the Stock Manager can log in; passwords are hashed (9 tests)
-- `tests/tstStockCollection.test.js` – list, Find, Add, Update, Delete, filters, low stock report (15 tests, needs the database)
+- `tests/tstStockCollection.test.js` – list, Find, Add, Update, Delete, filters, low stock report, hazard warnings, security tests (20 tests, needs the database)
+- `tests/tstStockLog.test.js` – change log Valid, Add and LoadAll (15 tests, needs the database)
 
 ## Features
 - Add, Edit, Delete (a product that is on an order is marked **unavailable** instead of deleted)
 - List, Find by product number, Filter by name or category, Low stock report (5 or fewer)
 - Validation on every field (name, category, price, quantity, date)
 - Owner-only login (hashed password, lock after 5 wrong attempts) and main menu; public shop page shows only available, in-stock products
+
+### Stock - Sprint 5 upgrade features (Bibek)
+- **Hazard warnings**: an optional warning (up to 100 characters) for hazardous products such as bleach, entered on the add/edit form and shown on the stock list and the customer shop page.
+- **Change log**: every add, edit, delete and "marked unavailable" is recorded in `tblStockLog` with the product, who made the change and when. Main menu, Change Log (`stock-log.html`, staff only).
+- For an existing database run `database/04_sprint5_upgrades.sql` once.
 
 ## Client Management
 

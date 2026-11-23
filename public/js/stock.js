@@ -16,7 +16,7 @@ async function loadStock() {
     document.getElementById('rows').innerHTML = data.products.map((p) => `
       <tr>
         <td>${p.ProductNo}</td>
-        <td>${escapeHtml(p.ProductName)}</td>
+        <td>${escapeHtml(p.ProductName)}${hazardBadge(p.HazardWarning)}</td>
         <td>${escapeHtml(p.Category)}</td>
         <td class="num">${money(p.Price)}</td>
         <td class="num ${p.QuantityInStock <= data.lowStockLevel ? 'low' : ''}">${p.QuantityInStock}</td>

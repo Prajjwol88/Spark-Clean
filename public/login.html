@@ -1,23 +1,16 @@
 <!DOCTYPE html>
+<!-- Presentation layer: Stock Manager login page (SparkClean Ltd - Stock Management, Bibek) -->
+<!-- Only the owner of the Stock component can log in; the password is checked on the server (clsStaffLogin) -->
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Stock Manager login - SparkClean Ltd</title></head>
 <body>
-<header class="shop-header">
-  <div class="brand">Spark Clean Ltd</div>
-  <nav>
-    <a class="shop-link" href="shop.html">Shop</a>
-    <a class="manager-login" href="login.html">Manager Login</a>
-  </nav>
-</header>
-<main class="login-layout">
-  <section class="shop-hero">
-  <h2>Cleaning supplies</h2>
-  <a class="main-shop-browse" href="shop.html">Browse shop</a>
-</section>
+<header><div class="brand">Spark<span>Clean</span> Ltd</div><nav><a href="shop.html">Shop</a></nav></header>
+<main>
   <div class="card narrow">
-    <h1>Manager login</h1>
-    <p class="muted">This page is for the Managers.</p>
+    <h1>Stock Manager login</h1>
+    <p class="muted">This page is for the Stock Manager only. Other staff log in to their own pages.</p>
     <div class="error" id="error" hidden></div>
+    <!-- login form: login.js sends the username and password to /api/login -->
     <form id="loginForm">
       <label for="username">Username</label>
       <input type="text" id="username" name="username" required>
@@ -27,6 +20,7 @@
     </form>
   </div>
 </main>
+<!-- shared helpers, then the script for this page -->
 <script src="js/common.js"></script>
 <script src="js/login.js"></script>
 </body>
