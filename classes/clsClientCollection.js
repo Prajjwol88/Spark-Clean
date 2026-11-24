@@ -1,4 +1,3 @@
-
 const clsDataConnection = require('../data/clsDataConnection');
 const clsClient = require('./clsClient');
 
@@ -32,20 +31,16 @@ class clsClientCollection {
   // Add a new client
   async Add() {
     const db = new clsDataConnection();
-
     this.addDetailParameters(db);
     await db.Execute('sproc_tblClient_Insert', { allowLocal: false });
 
-    this.ThisClient.ClientNo =
-      Number(db.dataTable[0].ClientNo);
-
+    this.ThisClient.ClientNo = Number(db.dataTable[0].ClientNo);
     return this.ThisClient.ClientNo;
   }
 
   // Update an existing client
   async Update() {
     const db = new clsDataConnection();
-
     db.AddParameter('@ClientNo', this.ThisClient.ClientNo);
     this.addDetailParameters(db);
 
@@ -56,6 +51,14 @@ class clsClientCollection {
   // Deactivate an existing client (soft delete)
   async Delete() {
     return this.SetActive(false);
+  }
+
+  // Permanently remove a client from the database
+  async DeletePermanently() {
+    const db = new clsDataConnection();
+    db.AddParameter('@ClientNo', this.ThisClient.ClientNo);
+    await db.Execute('sproc_tblClient_Delete', { allowLocal: false });
+    return Number(db.dataTable[0]?.Deleted) === 1;
   }
 
   async SetActive(active) {

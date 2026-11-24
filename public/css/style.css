@@ -30,7 +30,19 @@ input[type=text], input[type=password], input[type=number], input[type=date] {
        font-size: 15px; cursor: pointer; text-decoration: none; }
 .btn:hover { background: var(--teal-dark); }
 .btn.secondary { background: #fff; color: var(--teal); border: 1px solid var(--teal); }
-.btn.danger { background: var(--error); }
+button.danger {
+  background: #b91c1c;
+  color: white;
+}
+
+button.danger:hover:not(:disabled) {
+  background: #991b1b;
+}
+
+button.danger:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
 .btn.small { padding: 5px 10px; font-size: 13px; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
 .toolbar form { display: flex; gap: 8px; align-items: flex-end; }

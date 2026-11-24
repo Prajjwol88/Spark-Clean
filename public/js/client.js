@@ -17,11 +17,19 @@ async function request(url, options = {}) {
   });
 
   if (response.status === 401) {
-    window.location.assign('/login.html');
-    throw new Error('Please log in.');
+    window.location.assign("/login.html");
+    throw new Error("Please log in.");
   }
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || "Request failed");
+
+  if (response.status === 204) return;
+
+  const isJson = response.headers.get("content-type")?.includes("application/json");
+  const data = isJson ? await response.json() : null;
+
+  if (!response.ok) {
+    throw new Error(data?.error || `Request failed (HTTP ${response.status}).`);
+  }
+
   return data;
 }
 
@@ -41,16 +49,16 @@ async function loadClients() {
 
 function renderClients() {
   const search = document.getElementById("search").value.toLowerCase();
-  const filtered = clients.filter(c =>
-    c.fullName.toLowerCase().includes(search) ||
-    c.email.toLowerCase().includes(search)
+  const filtered = clients.filter(client =>
+    client.fullName.toLowerCase().includes(search) ||
+    client.email.toLowerCase().includes(search)
   );
 
   document.getElementById("total").textContent = clients.length;
   document.getElementById("active").textContent =
-    clients.filter(c => c.isActive).length;
+    clients.filter(client => client.isActive).length;
   document.getElementById("inactive").textContent =
-    clients.filter(c => !c.isActive).length;
+    clients.filter(client => !client.isActive).length;
 
   rows.replaceChildren();
 
@@ -84,16 +92,24 @@ function renderClients() {
     const actions = document.createElement("td");
 
     const edit = document.createElement("button");
+    edit.type = "button";
     edit.className = "small";
     edit.textContent = "Edit";
     edit.onclick = () => editClient(client.clientId);
 
     const toggle = document.createElement("button");
+    toggle.type = "button";
     toggle.className = "small secondary";
     toggle.textContent = client.isActive ? "Deactivate" : "Activate";
     toggle.onclick = () => toggleStatus(client);
 
-    actions.append(edit, toggle);
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "small danger";
+    remove.textContent = "Delete permanently";
+    remove.onclick = () => deleteClient(client, remove);
+
+    actions.append(edit, toggle, remove);
     tr.appendChild(actions);
     rows.appendChild(tr);
   });
@@ -110,7 +126,7 @@ function openForm() {
 }
 
 function editClient(id) {
-  const client = clients.find(c => c.clientId === id);
+  const client = clients.find(client => client.clientId === id);
   if (!client) return;
 
   document.getElementById("clientId").value = client.clientId;
@@ -124,6 +140,31 @@ function editClient(id) {
   panel.scrollIntoView({ behavior: "smooth" });
 }
 
+async function deleteClient(client, button) {
+  const confirmed = confirm(
+    `Permanently delete ${client.fullName} (#${client.clientId})? This cannot be undone.`
+  );
+  if (!confirmed) return;
+
+  button.disabled = true;
+
+  try {
+    await request(`${API}/${client.clientId}`, { method: "DELETE" });
+
+    if (document.getElementById("clientId").value === String(client.clientId)) {
+      form.reset();
+      panel.hidden = true;
+    }
+
+    showMessage("Client permanently deleted.");
+    await loadClients();
+  } catch (error) {
+    showMessage(error.message, true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 async function toggleStatus(client) {
   const action = client.isActive ? "deactivate" : "activate";
   if (!confirm(`Do you want to ${action} ${client.fullName}?`)) return;
@@ -133,6 +174,7 @@ async function toggleStatus(client) {
       method: "PATCH",
       body: JSON.stringify({ isActive: !client.isActive })
     });
+
     showMessage("Client status updated");
     await loadClients();
   } catch (error) {
@@ -172,4 +214,3 @@ document.getElementById("cancel").onclick = () => {
 document.getElementById("search").oninput = renderClients;
 
 loadClients();
-

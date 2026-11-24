@@ -248,7 +248,19 @@ clients.patch('/:id', async (req, res) => {
   res.json({ message: 'Client status updated.' });
 });
 
+clients.delete('/:id', async (req, res) => {
+  const collection = new clsClientCollection();
+  collection.ThisClient.ClientNo = req.clientId;
+  if (!(await collection.DeletePermanently())) {
+    return res.status(404).json({ error: 'Client not found.' });
+  }
+  res.json({ message: 'Client permanently deleted.' });
+});
+
 clients.use((err, req, res, next) => {
+  if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.code === 'ER_ROW_IS_REFERENCED') {
+    return res.status(409).json({ error: 'This client has linked records. You can deactivate the client instead.' });
+  }
   if (err.code === 'ER_DUP_ENTRY') {
     return res.status(409).json({ error: 'A client already uses that email address.' });
   }
