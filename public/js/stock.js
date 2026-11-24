@@ -25,10 +25,32 @@ async function loadStock() {
         <td>
           <a class="btn small secondary" href="stock-edit.html?no=${p.ProductNo}">Edit</a>
           <a class="btn small danger" href="stock-delete.html?no=${p.ProductNo}">Delete</a>
+          ${p.Available ? '' : `<button class="btn small" type="button" onclick="makeAvailable(${p.ProductNo})">Make available</button>`}
         </td>
       </tr>`).join('');
   } catch (err) {
     showBox('message', err.message);
   }
 }
+// one click to put an unavailable product back on the website:
+// loads the product, sets Available to true and saves it with the normal update (so it is validated and logged)
+async function makeAvailable(productNo) {
+  try {
+    const p = await getJson('/api/stock/' + productNo);
+    const result = await sendJson('PUT', '/api/stock/' + productNo, {
+      ProductName: p.ProductName,
+      Category: p.Category,
+      Price: String(p.Price),
+      QuantityInStock: String(p.QuantityInStock),
+      DateAdded: p.DateAdded,
+      Available: true,
+      HazardWarning: p.HazardWarning || ''
+    });
+    setFlash(result.message.replace('updated', 'is available on the website again'));
+    window.location.reload();
+  } catch (err) {
+    showBox('message', err.message);
+  }
+}
+
 loadStock();
