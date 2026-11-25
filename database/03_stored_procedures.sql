@@ -183,3 +183,13 @@ BEGIN
 END$
 
 DELIMITER ;
+
+-- Permanently delete a client by its unique number.
+DROP PROCEDURE IF EXISTS sproc_tblClient_Delete;
+DELIMITER $$
+CREATE PROCEDURE sproc_tblClient_Delete(IN p_ClientNo INT)
+BEGIN
+    DELETE FROM tblclient WHERE ClientNo = p_ClientNo;
+    SELECT ROW_COUNT() AS Deleted;
+END$$
+DELIMITER ;

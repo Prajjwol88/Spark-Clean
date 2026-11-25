@@ -298,4 +298,14 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong with the database. Please try again.' });
 });
 
-app.listen(config.port, () => console.log(`SparkClean is running at http://localhost:${config.port}`));
+async function start() {
+  try {
+    await require('./data/ensureClientDatabase')();
+  } catch (error) {
+    console.error('Client database setup:', error.code || '', error.message);
+  }
+
+  app.listen(config.port, () => console.log(`SparkClean is running at http://localhost:${config.port}`));
+}
+
+start();
