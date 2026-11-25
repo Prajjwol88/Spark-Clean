@@ -1,0 +1,89 @@
+/* SparkClean Ltd - Staff Management page (based on the Staff Management prototype design) */
+:root {
+  --navy: #17324d;
+  --blue: #2463a6;
+  --pale: #f3f6fa;
+  --border: #dce3eb;
+  --muted: #637386;
+  --green: #247a50;
+  --red: #a83a3a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--pale); color: #203040; }
+
+/* header */
+header {
+  background: var(--navy); color: white;
+  padding: 20px max(24px, calc((100% - 1120px) / 2));
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+header .brand { font-size: 24px; font-weight: 700; }
+header p { margin: 4px 0 0; color: #d8e5f1; }
+header nav a { color: white; margin-left: 18px; text-decoration: none; font-weight: 600; }
+header nav a:hover { text-decoration: underline; }
+
+main { max-width: 1120px; margin: 28px auto; padding: 0 20px 40px; }
+h1 { margin: 0; font-size: 24px; }
+h2 { font-size: 18px; margin: 0 0 12px; }
+.muted { color: var(--muted); font-weight: normal; }
+
+/* buttons */
+button { border: 0; border-radius: 7px; padding: 10px 15px; cursor: pointer; font-weight: 600; font-size: 14px; font-family: inherit; }
+.primary { background: var(--blue); color: white; }
+.primary:hover { background: #1c5088; }
+.secondary { background: #e8eef5; color: var(--navy); }
+.secondary:hover { background: #d9e3ee; }
+.danger { background: #fae9e9; color: var(--red); }
+.danger:hover { background: #f4d6d6; }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+
+/* summary boxes */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+.stat { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.stat span { display: block; color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.stat strong { font-size: 28px; color: var(--navy); }
+
+/* messages */
+.message { background: #e9f1fa; border-left: 4px solid var(--blue); padding: 10px 14px; margin-bottom: 16px; border-radius: 4px; }
+.error { background: #fae9e9; border-left: 4px solid var(--red); color: var(--red); padding: 10px 14px; margin-top: 14px; border-radius: 4px; font-size: 14px; }
+
+/* search and filter */
+.filters { display: grid; grid-template-columns: minmax(220px, 1fr) 200px; gap: 12px; margin-bottom: 16px; }
+input, select { width: 100%; padding: 11px 12px; border: 1px solid var(--border); border-radius: 7px; background: white; font: inherit; }
+
+/* table */
+.table-wrap { overflow-x: auto; background: white; border: 1px solid var(--border); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #edf0f4; vertical-align: top; }
+th { background: #f8fafc; color: #536477; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+tr:last-child td { border-bottom: 0; }
+td small { display: block; color: var(--muted); margin-top: 4px; font-size: 12px; }
+.num { text-align: right; }
+.status { display: inline-block; padding: 4px 9px; border-radius: 20px; background: #e5f4eb; color: var(--green); font-size: 12px; font-weight: 700; }
+.status.inactive { background: #f0f1f3; color: #657080; }
+.actions { white-space: nowrap; }
+.actions button { padding: 7px 9px; font-size: 12px; }
+.actions button + button { margin-left: 6px; }
+
+/* add / edit pop-up */
+.modal-backdrop { display: none; position: fixed; inset: 0; background: #10203088; padding: 20px; align-items: center; justify-content: center; }
+.modal-backdrop.open { display: flex; }
+.modal { width: min(100%, 540px); max-height: 100%; overflow-y: auto; background: white; border-radius: 12px; padding: 22px; box-shadow: 0 16px 50px #0003; }
+.modal h2 { margin: 0 0 18px; font-size: 21px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.field.full { grid-column: 1 / -1; }
+.form-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
+
+/* keep hidden boxes hidden */
+[hidden] { display: none !important; }
+
+/* phones and small screens */
+@media (max-width: 600px) {
+  header { flex-wrap: wrap; }
+  header nav a { margin: 0 14px 0 0; }
+  .stats, .filters, .form-grid { grid-template-columns: 1fr; }
+  .field.full { grid-column: auto; }
+  main { margin-top: 20px; }
+}

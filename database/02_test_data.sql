@@ -28,3 +28,13 @@ VALUES
     ('Oliver Nielsen', 'oliver@example.com', 'Herlev', '2730', CURDATE(), 1)
 ON DUPLICATE KEY UPDATE
     ClientNo = ClientNo;
+
+-- ------------------------------------------------------------
+-- Staff Management test data
+-- ------------------------------------------------------------
+INSERT IGNORE INTO tblStaff (FullName, Email, Phone, JobRole, StartDate, HourlyRate, IsManager, Active) VALUES
+('Alex Jensen',    'alex@example.com',   '12345678', 'Cleaner',      '2026-02-10', 145.00, FALSE, TRUE),
+('Sam Taylor',     'sam@example.com',    '22334455', 'Team Manager', '2025-11-03', 190.00, TRUE,  TRUE),
+('Jamie Lee',      'jamie@example.com',  '33445566', 'Supervisor',   '2025-08-18', 170.00, FALSE, FALSE),
+('Freja Hansen',   'freja@example.com',  '44556677', 'Cleaner',      '2026-05-04', 145.00, FALSE, TRUE),
+('Mikkel Larsen',  'mikkel@example.com', '',         'Window Cleaner','2026-07-21', 155.50, FALSE, TRUE);
