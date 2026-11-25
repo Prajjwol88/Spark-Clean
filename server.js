@@ -11,6 +11,9 @@ const clsStockLog = require('./classes/clsStockLog');
 const clsClient = require('./classes/clsClient');
 const clsClientCollection = require('./classes/clsClientCollection');
 
+const clsStaff = require('./classes/clsStaff');
+const clsStaffCollection = require('./classes/clsStaffCollection');
+
 const app = express();
 app.use(express.json());
 app.use(session({
@@ -29,7 +32,8 @@ const staffPages = [
   '/stock-edit.html',
   '/stock-delete.html',
   '/stock-log.html',
-  '/client.html'
+  '/client.html',
+  '/staff.html'
 ];
 function requireLogin(req, res, next) {
   if (req.session.staffUser) return next();
@@ -40,6 +44,7 @@ function requireLogin(req, res, next) {
 app.use(staffPages, requireLogin);
 app.use('/api/stock', requireLogin);
 app.use('/api/stocklog', requireLogin);
+app.use('/api/staff', requireLogin);
 
 app.get('/', (req, res) => res.redirect('/login.html'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -267,6 +272,156 @@ clients.use((err, req, res, next) => {
   if (['ER_ACCESS_DENIED_ERROR', 'ER_BAD_DB_ERROR', 'ECONNREFUSED', 'ETIMEDOUT', 'ER_SP_DOES_NOT_EXIST'].includes(err.code)) {
     console.error('Client Management MySQL:', err.code, err.message);
     return res.status(503).json({ error: 'Client Management requires the SparkClean MySQL database. Check the server terminal.' });
+  }
+  next(err);
+});
+
+// ---------- staff (Staff Management, staff only) ----------
+
+const staffRouter = express.Router();
+app.use('/api/staff', staffRouter);
+
+// checks the staff number in the address, e.g. /api/staff/1001
+staffRouter.param('no', (req, res, next, value) => {
+  const no = Number(value);
+  if (!/^\d+$/.test(value) || no < 1 || no > 2147483647) {
+    return res.status(400).json({ error: 'The staff number must be a whole number.' });
+  }
+  req.staffNo = no;
+  next();
+});
+
+// list, find by staff number, or search by name/email and filter by status
+staffRouter.get('/', async (req, res, next) => {
+  try {
+    const find = String(req.query.find || '').trim();
+    const search = String(req.query.search || '').trim();
+    const status = clsStaffCollection.STATUSES.includes(req.query.status) ? req.query.status : 'all';
+
+    // totals for the summary boxes always count every staff member
+    const everyone = new clsStaffCollection();
+    await everyone.LoadAll();
+    const totals = {
+      all: everyone.Count,
+      active: everyone.StaffList.filter((s) => s.Active).length,
+      inactive: everyone.StaffList.filter((s) => !s.Active).length
+    };
+
+    let list = everyone;
+    let heading = 'All staff';
+    let message = '';
+
+    if (find) {
+      heading = 'Find result';
+      list = new clsStaffCollection();
+      if (!/^\d+$/.test(find)) {
+        message = 'The staff number must be a whole number.';
+      } else {
+        const staff = new clsStaff();
+        if (await staff.Find(Number(find))) list.StaffList = [staff];
+        else message = 'Staff member not found.';
+      }
+    } else if (search || status !== 'all') {
+      list = new clsStaffCollection();
+      await list.FilterByNameOrEmail(search, status);
+      const label = { all: 'Staff', active: 'Active staff', inactive: 'Inactive staff' }[status];
+      heading = search ? `${label} matching "${search}"` : label;
+      if (list.Count === 0) message = 'No matching staff records.';
+    } else if (list.Count === 0) {
+      message = 'No staff members have been added yet.';
+    }
+
+    res.json({ heading, message, count: list.Count, totals, staff: list.StaffList });
+  } catch (err) { next(err); }
+});
+
+// one staff member
+staffRouter.get('/:no', async (req, res, next) => {
+  try {
+    const staff = new clsStaff();
+    if (!(await staff.Find(req.staffNo))) return res.status(404).json({ error: 'Staff member not found.' });
+    res.json(staff);
+  } catch (err) { next(err); }
+});
+
+// validates the form and copies it into a clsStaff object
+function readStaffForm(body) {
+  const staff = new clsStaff();
+  const b = body || {};
+  const error = staff.Valid(b.FullName, b.Email, b.Phone, b.JobRole, b.StartDate, b.HourlyRate);
+  if (error) return { error };
+  staff.FullName = String(b.FullName).trim();
+  staff.Email = String(b.Email).trim().toLowerCase();
+  staff.Phone = String(b.Phone || '').trim();
+  staff.JobRole = String(b.JobRole).trim();
+  staff.StartDate = String(b.StartDate).trim();
+  staff.HourlyRate = Number(b.HourlyRate);
+  staff.IsManager = b.IsManager === true || b.IsManager === 'yes';
+  return { staff };
+}
+
+// add (new staff members are always active)
+staffRouter.post('/', async (req, res, next) => {
+  try {
+    const { error, staff } = readStaffForm(req.body);
+    if (error) return res.status(400).json({ error });
+    const all = new clsStaffCollection();
+    all.ThisStaff = staff;
+    if (await all.EmailInUse()) return res.status(409).json({ error: 'That email address is already in use.' });
+    const newNo = await all.Add();
+    res.status(201).json({ staffNo: newNo, message: `Staff member ${newNo} added.` });
+  } catch (err) { next(err); }
+});
+
+// update details
+staffRouter.put('/:no', async (req, res, next) => {
+  try {
+    const { error, staff } = readStaffForm(req.body);
+    if (error) return res.status(400).json({ error });
+    if (!(await new clsStaff().Find(req.staffNo))) return res.status(404).json({ error: 'Staff member not found.' });
+    staff.StaffNo = req.staffNo;
+    const all = new clsStaffCollection();
+    all.ThisStaff = staff;
+    if (await all.EmailInUse()) return res.status(409).json({ error: 'That email address is already in use.' });
+    if (!(await all.Update())) return res.status(404).json({ error: 'Staff member not found.' });
+    res.json({ message: `Staff member ${staff.StaffNo} updated.` });
+  } catch (err) { next(err); }
+});
+
+// activate or deactivate
+staffRouter.patch('/:no', async (req, res, next) => {
+  try {
+    const active = req.body?.Active;
+    if (typeof active !== 'boolean') return res.status(400).json({ error: 'Active must be true or false.' });
+    const all = new clsStaffCollection();
+    all.ThisStaff.StaffNo = req.staffNo;
+    if (!(await all.SetActive(active))) return res.status(404).json({ error: 'Staff member not found.' });
+    res.json({ message: `Staff member ${req.staffNo} ${active ? 'activated' : 'deactivated'}.` });
+  } catch (err) { next(err); }
+});
+
+// delete (only staff who have been deactivated first)
+staffRouter.delete('/:no', async (req, res, next) => {
+  try {
+    const all = new clsStaffCollection();
+    all.ThisStaff.StaffNo = req.staffNo;
+    const result = await all.Delete();
+    if (result === 'NotFound') return res.status(404).json({ error: 'Staff member not found.' });
+    if (result === 'StillActive') {
+      return res.status(409).json({ error: `Staff member ${req.staffNo} is still active. Deactivate them before deleting.` });
+    }
+    res.json({ message: `Staff member ${req.staffNo} deleted.` });
+  } catch (err) { next(err); }
+});
+
+// friendly messages for database problems on the staff pages
+staffRouter.use((err, req, res, next) => {
+  if (err.code === 'ER_DUP_ENTRY' || /Duplicate entry/i.test(err.message)) {
+    return res.status(409).json({ error: 'That email address is already in use.' });
+  }
+  if (['ER_ACCESS_DENIED_ERROR', 'ER_BAD_DB_ERROR', 'ECONNREFUSED', 'ETIMEDOUT', 'ER_SP_DOES_NOT_EXIST', 'ER_NO_SUCH_TABLE'].includes(err.code)) {
+    console.error('Staff Management MySQL:', err.code, err.message);
+    return res.status(503).json({ error: 'Staff Management needs the SparkClean MySQL database. Run database/05_staff_management.sql and check the server terminal.' });
   }
   next(err);
 });

@@ -50,3 +50,19 @@ CREATE TABLE IF NOT EXISTS tblclient (
     Active         TINYINT(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (ClientNo)
 );
+
+-- ------------------------------------------------------------
+-- tblStaff (Staff Management component)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tblStaff (
+    StaffNo     INT           NOT NULL AUTO_INCREMENT,  -- primary key
+    FullName    VARCHAR(100)  NOT NULL,                 -- string
+    Email       VARCHAR(150)  NOT NULL UNIQUE,          -- string, no two staff share an email
+    Phone       VARCHAR(20)   NOT NULL DEFAULT '',      -- string, optional (blank = none)
+    JobRole     VARCHAR(50)   NOT NULL,                 -- string
+    StartDate   DATE          NOT NULL,                 -- date
+    HourlyRate  DECIMAL(6,2)  NOT NULL,                 -- numeric, DKK
+    IsManager   BOOLEAN       NOT NULL DEFAULT FALSE,   -- boolean
+    Active      BOOLEAN       NOT NULL DEFAULT TRUE,    -- boolean, inactive staff are kept for records
+    PRIMARY KEY (StaffNo)
+) AUTO_INCREMENT = 1001;

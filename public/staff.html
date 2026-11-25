@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- Presentation layer: Staff Management page (staff only) - list, find, search, filter, add, edit, activate/deactivate and delete staff -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff Management - SparkClean Ltd</title>
+  <link rel="stylesheet" href="css/staff.css">
+</head>
+<body>
+<!-- page header: company name, navigation links and log out -->
+<header>
+  <div>
+    <div class="brand">SparkClean Ltd</div>
+    <p>Staff Management</p>
+  </div>
+  <nav><a href="menu.html">Main menu</a><a href="#" id="logout">Log out</a></nav>
+</header>
+
+<main>
+  <div class="toolbar">
+    <h1>Staff records</h1>
+    <button class="primary" id="addButton" type="button">+ Add staff member</button>
+  </div>
+
+  <!-- summary boxes: totals for every staff member -->
+  <section class="stats">
+    <div class="stat"><span>Total staff</span><strong id="totalAll">0</strong></div>
+    <div class="stat"><span>Active staff</span><strong id="totalActive">0</strong></div>
+    <div class="stat"><span>Inactive staff</span><strong id="totalInactive">0</strong></div>
+  </section>
+
+  <!-- message box: e.g. "Staff member 1006 added." or "No matching staff records." -->
+  <div class="message" id="message" role="status" hidden></div>
+
+  <!-- search: a number finds one staff member (clsStaff.Find), text searches name or email (clsStaffCollection.FilterByNameOrEmail) -->
+  <div class="filters">
+    <input id="searchInput" type="search" aria-label="Search staff" placeholder="Search by name, email or staff number">
+    <select id="statusFilter" aria-label="Filter by status">
+      <option value="all">All staff</option>
+      <option value="active">Active staff</option>
+      <option value="inactive">Inactive staff</option>
+    </select>
+  </div>
+
+  <h2><span id="heading">All staff</span> <span class="muted" id="count"></span></h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Staff No.</th><th>Full name</th><th>Job role</th><th>Start date</th>
+          <th class="num">Hourly rate</th><th>Manager</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <!-- rows are added by staff.js -->
+      <tbody id="staffTable"></tbody>
+    </table>
+  </div>
+</main>
+
+<!-- add / edit form (pop-up) -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">Add staff member</h2>
+    <form id="staffForm" novalidate>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="fullName">Full name *</label>
+          <input id="fullName" name="FullName" maxlength="100">
+        </div>
+        <div class="field">
+          <label for="email">Email *</label>
+          <input id="email" name="Email" type="email" maxlength="150">
+        </div>
+        <div class="field">
+          <label for="phone">Phone number</label>
+          <input id="phone" name="Phone" maxlength="20">
+        </div>
+        <div class="field">
+          <label for="jobRole">Job role *</label>
+          <input id="jobRole" name="JobRole" maxlength="50" placeholder="e.g. Cleaner, Supervisor">
+        </div>
+        <div class="field">
+          <label for="startDate">Start date *</label>
+          <input id="startDate" name="StartDate" type="date">
+        </div>
+        <div class="field">
+          <label for="hourlyRate">Hourly rate (DKK) *</label>
+          <input id="hourlyRate" name="HourlyRate" inputmode="decimal" placeholder="e.g. 145.00">
+        </div>
+        <div class="field">
+          <label for="isManager">Manager?</label>
+          <select id="isManager" name="IsManager">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+      </div>
+      <!-- error box: shows every problem found by clsStaff.Valid on the server -->
+      <div class="error" id="formError" role="alert" hidden></div>
+      <div class="form-actions">
+        <button type="button" class="secondary" id="cancelButton">Cancel</button>
+        <button type="submit" class="primary">Save staff member</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- shared helpers, then the script for this page -->
+<script src="js/common.js"></script>
+<script src="js/staff.js"></script>
+</body>
+</html>

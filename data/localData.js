@@ -34,6 +34,23 @@ function load() {
 function save(data) { fs.writeFileSync(file, JSON.stringify(data, null, 2)); }
 
 const byName = (a, b) => a.ProductName.localeCompare(b.ProductName);
+
+// Staff Management: same test staff as database/05_staff_management.sql (added the first time they are needed)
+const testStaff = [
+  ['Alex Jensen', 'alex@example.com', '12345678', 'Cleaner', '2026-02-10', 145, 0, 1],
+  ['Sam Taylor', 'sam@example.com', '22334455', 'Team Manager', '2025-11-03', 190, 1, 1],
+  ['Jamie Lee', 'jamie@example.com', '33445566', 'Supervisor', '2025-08-18', 170, 0, 0],
+  ['Freja Hansen', 'freja@example.com', '44556677', 'Cleaner', '2026-05-04', 145, 0, 1],
+  ['Mikkel Larsen', 'mikkel@example.com', '', 'Window Cleaner', '2026-07-21', 155.5, 0, 1]
+].map((s, i) => ({
+  StaffNo: 1001 + i, FullName: s[0], Email: s[1], Phone: s[2], JobRole: s[3],
+  StartDate: s[4], HourlyRate: s[5], IsManager: s[6], Active: s[7]
+}));
+function staffOf(data) {
+  if (!data.staff) { data.staff = testStaff.map((s) => ({ ...s })); data.nextStaffNo = 1006; }
+  return data.staff;
+}
+const byFullName = (a, b) => a.FullName.localeCompare(b.FullName);
 const matches = (p, f) => {
   const text = String(f || '').toLowerCase();
   return p.ProductName.toLowerCase().includes(text) || p.Category.toLowerCase().includes(text);
@@ -106,6 +123,59 @@ function call(storedProcedure, params) {
       return [];
     case 'sproc_tblStockLog_SelectAll':
       return [...(data.log || [])].sort((a, b) => b.LogNo - a.LogNo);
+    // ---------- Staff Management (same as database/05_staff_management.sql) ----------
+    case 'sproc_tblStaff_SelectAll':
+      return [...staffOf(data)].sort(byFullName);
+    case 'sproc_tblStaff_FilterByStaffNo':
+      return staffOf(data).filter((s) => s.StaffNo === Number(params[0]));
+    case 'sproc_tblStaff_FilterByNameOrEmail': {
+      const text = String(params[0] || '').toLowerCase();
+      const status = params[1];
+      return staffOf(data).filter((s) =>
+        (s.FullName.toLowerCase().includes(text) || s.Email.toLowerCase().includes(text)) &&
+        (status === 'all' || (status === 'active' && s.Active) || (status === 'inactive' && !s.Active))
+      ).sort(byFullName);
+    }
+    case 'sproc_tblStaff_EmailInUse': {
+      const email = String(params[0] || '').toLowerCase();
+      const inUse = staffOf(data).some((s) => s.Email.toLowerCase() === email && s.StaffNo !== Number(params[1]));
+      return [{ InUse: inUse ? 1 : 0 }];
+    }
+    case 'sproc_tblStaff_Insert': {
+      const list = staffOf(data);
+      const [FullName, Email, Phone, JobRole, StartDate, HourlyRate, IsManager] = params;
+      if (list.some((s) => s.Email.toLowerCase() === String(Email).toLowerCase())) {
+        const err = new Error('Duplicate email'); err.code = 'ER_DUP_ENTRY'; throw err;
+      }
+      const StaffNo = data.nextStaffNo++;
+      list.push({ StaffNo, FullName, Email, Phone, JobRole, StartDate,
+        HourlyRate: Number(HourlyRate), IsManager: IsManager ? 1 : 0, Active: 1 });
+      save(data);
+      return [{ StaffNo }];
+    }
+    case 'sproc_tblStaff_Update': {
+      const [StaffNo, FullName, Email, Phone, JobRole, StartDate, HourlyRate, IsManager] = params;
+      const s = staffOf(data).find((x) => x.StaffNo === Number(StaffNo));
+      if (s) Object.assign(s, { FullName, Email, Phone, JobRole, StartDate,
+        HourlyRate: Number(HourlyRate), IsManager: IsManager ? 1 : 0 });
+      save(data);
+      return [{ Found: s ? 1 : 0 }];
+    }
+    case 'sproc_tblStaff_SetActive': {
+      const s = staffOf(data).find((x) => x.StaffNo === Number(params[0]));
+      if (s) s.Active = params[1] ? 1 : 0;
+      save(data);
+      return [{ Found: s ? 1 : 0 }];
+    }
+    case 'sproc_tblStaff_Delete': {
+      const no = Number(params[0]);
+      const s = staffOf(data).find((x) => x.StaffNo === no);
+      if (!s) return [{ Result: 'NotFound' }];
+      if (s.Active) return [{ Result: 'StillActive' }];
+      data.staff = data.staff.filter((x) => x.StaffNo !== no);
+      save(data);
+      return [{ Result: 'Deleted' }];
+    }
     default:
       throw new Error('Unknown stored procedure ' + storedProcedure);
   }
