@@ -77,6 +77,10 @@ function openForm(staff = null) {
   editingStaffNo = staff ? staff.StaffNo : null;
   document.getElementById('modalTitle').textContent = staff ? `Edit staff member ${staff.StaffNo}` : 'Add staff member';
 
+  // when editing, a password is only saved if the manager types a new one
+  document.getElementById('passwordLabel').textContent = staff ? 'New login password' : 'Login password';
+  staffForm.Password.placeholder = staff ? 'Leave blank to keep the current password' : 'Optional, 8+ letters and numbers';
+
   if (staff) {
     staffForm.FullName.value = staff.FullName;
     staffForm.Email.value = staff.Email;
@@ -117,10 +121,19 @@ staffForm.addEventListener('submit', async (e) => {
     HourlyRate: staffForm.HourlyRate.value,
     IsManager: staffForm.IsManager.value === 'yes'
   };
+  const password = staffForm.Password.value;
   try {
-    const result = editingStaffNo
-      ? await sendJson('PUT', `${API}/${editingStaffNo}`, staff)
-      : await sendJson('POST', API, staff);
+    let result;
+    if (editingStaffNo) {
+      result = await sendJson('PUT', `${API}/${editingStaffNo}`, staff);
+      // a new password is saved separately (clsStaffAccount.SetPassword)
+      if (password) {
+        await sendJson('PUT', `${API}/${editingStaffNo}/password`, { Password: password });
+        result.message += ' The login password was changed.';
+      }
+    } else {
+      result = await sendJson('POST', API, { ...staff, Password: password });
+    }
     closeForm();
     setFlash(result.message);
     await loadStaff();

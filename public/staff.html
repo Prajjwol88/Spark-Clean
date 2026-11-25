@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Presentation layer: Staff Management page (staff only) - list, find, search, filter, add, edit, activate/deactivate and delete staff -->
+<!-- Presentation layer: Staff Management page (managers only) - list, find, search, filter, add, edit, activate/deactivate and delete staff, and set login passwords -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -87,6 +87,10 @@
         <div class="field">
           <label for="hourlyRate">Hourly rate (DKK) *</label>
           <input id="hourlyRate" name="HourlyRate" inputmode="decimal" placeholder="e.g. 145.00">
+        </div>
+        <div class="field">
+          <label for="password" id="passwordLabel">Login password</label>
+          <input id="password" name="Password" type="password" maxlength="50" autocomplete="new-password" placeholder="Optional, 8+ letters and numbers">
         </div>
         <div class="field">
           <label for="isManager">Manager?</label>

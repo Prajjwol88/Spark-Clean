@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- Presentation layer: Stock Manager login page (SparkClean Ltd - Stock Management, Bibek) -->
-<!-- Only the owner of the Stock component can log in; the password is checked on the server (clsStaffLogin) -->
+<!-- The Stock Manager logs in with their username (clsStaffLogin); every staff member can log in with their email address (clsStaffAccount, Staff Management - Sushil) -->
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="css/style.css"><title>Stock Manager login - SparkClean Ltd</title></head>
 <body>
@@ -18,11 +18,11 @@
 </section>
   <div class="card narrow">
     <h1>Manager login</h1>
-    <p class="muted">This page is for the Managers.</p>
+    <p class="muted">This page is for SparkClean managers and staff. Staff log in with their work email address.</p>
     <div class="error" id="error" hidden></div>
     <!-- login form: login.js sends the username and password to /api/login -->
     <form id="loginForm">
-      <label for="username">Username</label>
+      <label for="username">Username or staff email</label>
       <input type="text" id="username" name="username" required>
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required>

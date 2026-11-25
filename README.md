@@ -20,6 +20,7 @@ In MySQL Workbench (or the `mysql` command line) run the three files **in order*
 3. `database/03_stored_procedures.sql`
 4. `database/04_sprint5_upgrades.sql` (Sprint 5 Stock upgrades: hazard warnings and change log - run once)
 5. `database/05_staff_management.sql` (Staff Management: tblStaff, test staff and stored procedures - safe to run again)
+6. `database/06_staff_login.sql` (Staff login: tblStaffAccount, demo passwords and login procedures - safe to run again)
 
 (Or run `database/SETUP_ALL.sql` once, which does all of this, including the MySQL login.)
 
@@ -79,13 +80,29 @@ The app defaults to `127.0.0.1:3306` and the `sparkclean` database. For a differ
 
 ## Staff Management
 
-From the staff main menu, open **Staff Management** (`staff.html`, staff only) to manage SparkClean's employees. Staff records are stored in MySQL in `tblStaff` (staff numbers start at 1001).
+From the staff main menu, open **Staff Management** (`staff.html`, **managers only**) to manage SparkClean's employees. Staff records are stored in MySQL in `tblStaff` (staff numbers start at 1001).
 
 | Layer | Files |
 |---|---|
-| Presentation | `public/staff.html`, `public/js/staff.js`, `public/css/staff.css`, `/api/staff` routes in `server.js` |
-| Middle (business) | `classes/clsStaff.js` (properties, `Find`, `Valid`), `classes/clsStaffCollection.js` (`LoadAll`, `FilterByNameOrEmail`, `EmailInUse`, `Add`, `Update`, `SetActive`, `Delete`) |
-| Data | `tblStaff` and the `sproc_tblStaff_*` stored procedures in `database/05_staff_management.sql` (also added to `01`, `02`, `03` and `SETUP_ALL.sql`) |
+| Presentation | `public/staff.html`, `public/js/staff.js`, `public/my-details.html`, `public/js/my-details.js`, `public/css/staff.css`, `/api/staff` and `/api/my-details` routes and the staff login in `server.js` |
+| Middle (business) | `classes/clsStaff.js` (properties, `Find`, `Valid`), `classes/clsStaffCollection.js` (`LoadAll`, `FilterByNameOrEmail`, `EmailInUse`, `Add`, `Update`, `UpdatePhone`, `SetActive`, `Delete`), `classes/clsStaffAccount.js` (`Login`, `FindByEmail`, `SetPassword`, `ValidPassword`) |
+| Data | `tblStaff`, `tblStaffAccount` and the `sproc_tblStaff_*` / `sproc_tblStaffAccount_*` stored procedures in `database/05_staff_management.sql` and `06_staff_login.sql` (also added to `01`, `02`, `03` and `SETUP_ALL.sql`) |
+
+### Staff login
+Every active staff member logs in on the normal login page with their **work email address** and their own password (the Stock Manager still logs in with `bibek`).
+
+| Test login | Password | What they see |
+|---|---|---|
+| `sam@example.com` (Team Manager) | `Staff2026!` | Main menu and **Staff Management** |
+| `alex@example.com` (Cleaner) | `Staff2026!` | **My Details** only: their own record, change their phone number and password |
+| `jamie@example.com` (inactive) | `Staff2026!` | Refused - inactive staff cannot log in |
+
+- Passwords are stored only as a salted scrypt hash in `tblStaffAccount` (same method as `clsStaffLogin`), never as plain text
+- Passwords must be 8–50 characters with at least one letter and one number
+- A manager can give a new staff member a password when adding them, or set a new one when editing them
+- Staff change their own password on **My Details** (the current password is checked first)
+- Deactivated staff lose their login straight away; a manager cannot deactivate their own account
+- Wrong logins get the same message whether the email or the password was wrong, and 5 wrong attempts lock the login for 5 minutes
 
 ### Features
 - **List** every staff member, with totals for all, active and inactive staff
@@ -100,9 +117,9 @@ From the staff main menu, open **Staff Management** (`staff.html`, staff only) t
   - phone optional, at most 20 characters, digits, spaces and `+ - ( )` only
   - start date a real date, not in the future and not before 2000
   - hourly rate 0.01–999.99 with at most 2 decimal places
-- **Security**: staff pages and `/api/staff` need the staff login; every query uses stored procedure parameters (no SQL injection); names are escaped before being shown (no script injection)
+- **Security**: Staff Management and `/api/staff` need a manager login, `/api/my-details` needs any staff login; every query uses stored procedure parameters (no SQL injection); names are escaped before being shown (no script injection)
 
 ### Existing database
-Run `database/05_staff_management.sql` once in MySQL Workbench. It creates `tblStaff` only if it is missing, adds the test staff only if they are missing, and refreshes the stored procedures. If MySQL cannot be reached, Staff Management uses the backup data file `data/stock.json` (with the same 5 test staff), like Stock Management, so the page still works for a demo.
+Run `database/05_staff_management.sql` and then `database/06_staff_login.sql` once in MySQL Workbench. They create `tblStaff` and `tblStaffAccount` only if they are missing, adds the test staff only if they are missing, and refreshes the stored procedures. If MySQL cannot be reached, Staff Management uses the backup data file `data/stock.json` (with the same 5 test staff), like Stock Management, so the page still works for a demo.
 
 `sparkclean_staff_management.html` in the project folder is the original browser-only prototype; the real page is `public/staff.html`.

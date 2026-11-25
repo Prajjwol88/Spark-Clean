@@ -306,3 +306,53 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- ------------------------------------------------------------
+-- Staff login stored procedures
+-- ------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sproc_tblStaffAccount_FilterByEmail;
+DROP PROCEDURE IF EXISTS sproc_tblStaffAccount_SetPassword;
+DROP PROCEDURE IF EXISTS sproc_tblStaffAccount_RecordLogin;
+DROP PROCEDURE IF EXISTS sproc_tblStaff_UpdatePhone;
+
+DELIMITER $$
+
+-- the login details for one email address (the staff member plus their password hash)
+CREATE PROCEDURE sproc_tblStaffAccount_FilterByEmail(IN p_Email VARCHAR(150))
+BEGIN
+    SELECT s.StaffNo, s.FullName, s.Email, s.IsManager, s.Active, a.PasswordHash, a.LastLogin
+    FROM tblStaff s
+    JOIN tblStaffAccount a ON a.StaffNo = s.StaffNo
+    WHERE s.Email = p_Email;
+END$$
+
+-- creates or changes the password of a staff member; returns 1 if the staff member exists
+CREATE PROCEDURE sproc_tblStaffAccount_SetPassword(
+    IN p_StaffNo      INT,
+    IN p_PasswordHash VARCHAR(200))
+BEGIN
+    IF EXISTS (SELECT 1 FROM tblStaff WHERE StaffNo = p_StaffNo) THEN
+        INSERT INTO tblStaffAccount (StaffNo, PasswordHash) VALUES (p_StaffNo, p_PasswordHash)
+        ON DUPLICATE KEY UPDATE PasswordHash = p_PasswordHash;
+        SELECT 1 AS Found;
+    ELSE
+        SELECT 0 AS Found;
+    END IF;
+END$$
+
+-- saves the time of a successful login
+CREATE PROCEDURE sproc_tblStaffAccount_RecordLogin(IN p_StaffNo INT)
+BEGIN
+    UPDATE tblStaffAccount SET LastLogin = NOW() WHERE StaffNo = p_StaffNo;
+END$$
+
+-- a staff member changes their own phone number (the only detail ordinary staff may change)
+CREATE PROCEDURE sproc_tblStaff_UpdatePhone(
+    IN p_StaffNo INT,
+    IN p_Phone   VARCHAR(20))
+BEGIN
+    UPDATE tblStaff SET Phone = p_Phone WHERE StaffNo = p_StaffNo;
+    SELECT EXISTS(SELECT 1 FROM tblStaff WHERE StaffNo = p_StaffNo) AS Found;
+END$$
+
+DELIMITER ;

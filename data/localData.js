@@ -50,6 +50,16 @@ function staffOf(data) {
   if (!data.staff) { data.staff = testStaff.map((s) => ({ ...s })); data.nextStaffNo = 1006; }
   return data.staff;
 }
+// Staff login: every test staff member starts with the demo password Staff2026! (same as 06_staff_login.sql)
+const demoHash = '5f75a21591cf23ce68b4ccfba5caf0ef:81cff491ec9ba7994b665ef06c0c0f2f5706c883d793aabb496296cf2fb378c38e28767a2b8a5933fa793f106d01b0878f428629a62c43e47a363ec4b7f48d57';
+function accountsOf(data) {
+  if (!data.staffAccounts) {
+    data.staffAccounts = testStaff.map((s) => ({ StaffNo: s.StaffNo, PasswordHash: demoHash, LastLogin: null }));
+  }
+  // deleting a staff member also deletes their account (like ON DELETE CASCADE)
+  data.staffAccounts = data.staffAccounts.filter((a) => staffOf(data).some((s) => s.StaffNo === a.StaffNo));
+  return data.staffAccounts;
+}
 const byFullName = (a, b) => a.FullName.localeCompare(b.FullName);
 const matches = (p, f) => {
   const text = String(f || '').toLowerCase();
@@ -175,6 +185,35 @@ function call(storedProcedure, params) {
       data.staff = data.staff.filter((x) => x.StaffNo !== no);
       save(data);
       return [{ Result: 'Deleted' }];
+    }
+    // ---------- Staff login (same as database/06_staff_login.sql) ----------
+    case 'sproc_tblStaffAccount_FilterByEmail': {
+      const email = String(params[0] || '').toLowerCase();
+      const s = staffOf(data).find((x) => x.Email.toLowerCase() === email);
+      const acc = s && accountsOf(data).find((a) => a.StaffNo === s.StaffNo);
+      if (!s || !acc) return [];
+      return [{ StaffNo: s.StaffNo, FullName: s.FullName, Email: s.Email, IsManager: s.IsManager,
+        Active: s.Active, PasswordHash: acc.PasswordHash, LastLogin: acc.LastLogin || null }];
+    }
+    case 'sproc_tblStaffAccount_SetPassword': {
+      const no = Number(params[0]);
+      if (!staffOf(data).some((x) => x.StaffNo === no)) return [{ Found: 0 }];
+      const list = accountsOf(data);
+      const acc = list.find((a) => a.StaffNo === no);
+      if (acc) acc.PasswordHash = params[1];
+      else list.push({ StaffNo: no, PasswordHash: params[1], LastLogin: null });
+      save(data);
+      return [{ Found: 1 }];
+    }
+    case 'sproc_tblStaffAccount_RecordLogin': {
+      const acc = accountsOf(data).find((a) => a.StaffNo === Number(params[0]));
+      if (acc) { acc.LastLogin = new Date().toISOString(); save(data); }
+      return [];
+    }
+    case 'sproc_tblStaff_UpdatePhone': {
+      const s = staffOf(data).find((x) => x.StaffNo === Number(params[0]));
+      if (s) { s.Phone = params[1]; save(data); }
+      return [{ Found: s ? 1 : 0 }];
     }
     default:
       throw new Error('Unknown stored procedure ' + storedProcedure);
