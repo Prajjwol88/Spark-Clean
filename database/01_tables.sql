@@ -66,3 +66,15 @@ CREATE TABLE IF NOT EXISTS tblStaff (
     Active      BOOLEAN       NOT NULL DEFAULT TRUE,    -- boolean, inactive staff are kept for records
     PRIMARY KEY (StaffNo)
 ) AUTO_INCREMENT = 1001;
+
+-- ------------------------------------------------------------
+-- tblStaffAccount (one login account per staff member)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tblStaffAccount (
+    StaffNo       INT           NOT NULL,            -- primary key and foreign key to tblStaff
+    PasswordHash  VARCHAR(200)  NOT NULL,            -- "salt:hash", never the real password
+    LastLogin     DATETIME      NULL,                -- when this staff member last logged in
+    PRIMARY KEY (StaffNo),
+    CONSTRAINT fk_StaffAccount_Staff FOREIGN KEY (StaffNo)
+        REFERENCES tblStaff (StaffNo) ON DELETE CASCADE
+);

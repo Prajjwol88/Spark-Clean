@@ -13,6 +13,7 @@ const clsClientCollection = require('./classes/clsClientCollection');
 
 const clsStaff = require('./classes/clsStaff');
 const clsStaffCollection = require('./classes/clsStaffCollection');
+const clsStaffAccount = require('./classes/clsStaffAccount');
 
 const app = express();
 app.use(express.json());
@@ -33,7 +34,8 @@ const staffPages = [
   '/stock-delete.html',
   '/stock-log.html',
   '/client.html',
-  '/staff.html'
+  '/staff.html',
+  '/my-details.html'
 ];
 function requireLogin(req, res, next) {
   if (req.session.staffUser) return next();
@@ -45,6 +47,18 @@ app.use(staffPages, requireLogin);
 app.use('/api/stock', requireLogin);
 app.use('/api/stocklog', requireLogin);
 app.use('/api/staff', requireLogin);
+app.use('/api/my-details', requireLogin);
+
+// Staff Management is for managers only (Sushil): ordinary staff are sent to their own details page
+function requireManager(req, res, next) {
+  if (req.session.isManager) return next();
+  if (req.originalUrl.startsWith('/api/')) {
+    return res.status(403).json({ error: 'Only managers can use Staff Management.' });
+  }
+  return res.redirect('/my-details.html');
+}
+app.use('/staff.html', requireManager);
+app.use('/api/staff', requireManager);
 
 app.get('/', (req, res) => res.redirect('/login.html'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -52,7 +66,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // wrong attempts per computer, so the password cannot be guessed over and over
 const failedLogins = {};
 
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   const key = req.ip;
   const record = failedLogins[key] || { count: 0, lockedUntil: 0 };
@@ -66,9 +80,28 @@ app.post('/api/login', (req, res) => {
     delete failedLogins[key];
     req.session.regenerate(() => {
       req.session.staffUser = config.owner.displayName;
-      res.json({ ok: true });
+      req.session.isManager = true;    // the Stock Manager is a manager
+      req.session.staffNo = null;      // not a row in tblStaff
+      res.json({ ok: true, isManager: true });
     });
     return;
+  }
+
+  // Staff Management (Sushil): every active staff member can log in with their email address
+  try {
+    const account = new clsStaffAccount();
+    if (await account.Login(username, password)) {
+      delete failedLogins[key];
+      req.session.regenerate(() => {
+        req.session.staffUser = account.FullName + (account.IsManager ? ' (Manager)' : '');
+        req.session.isManager = account.IsManager;
+        req.session.staffNo = account.StaffNo;
+        res.json({ ok: true, isManager: account.IsManager });
+      });
+      return;
+    }
+  } catch (err) {
+    console.error('Staff login:', err.message);
   }
 
   record.count += 1;
@@ -78,10 +111,14 @@ app.post('/api/login', (req, res) => {
   }
   failedLogins[key] = record;
   // same message for a wrong username or password, so it does not reveal which one was wrong
-  res.status(401).json({ error: 'Access denied. Only the Stock Manager can log in to this page.' });
+  res.status(401).json({ error: 'Access denied. Wrong username, email or password.' });
 });
 
-app.get('/api/me', (req, res) => res.json({ staffUser: req.session.staffUser || null }));
+app.get('/api/me', (req, res) => res.json({
+  staffUser: req.session.staffUser || null,
+  isManager: Boolean(req.session.isManager),
+  staffNo: req.session.staffNo || null
+}));
 
 app.post('/api/logout', (req, res) => req.session.destroy(() => res.json({ ok: true })));
 
@@ -368,8 +405,16 @@ staffRouter.post('/', async (req, res, next) => {
     const all = new clsStaffCollection();
     all.ThisStaff = staff;
     if (await all.EmailInUse()) return res.status(409).json({ error: 'That email address is already in use.' });
+    // optional first password so the new staff member can log in
+    const password = String(req.body?.Password || '');
+    const account = new clsStaffAccount();
+    if (password) {
+      const passwordError = account.ValidPassword(password);
+      if (passwordError) return res.status(400).json({ error: passwordError });
+    }
     const newNo = await all.Add();
-    res.status(201).json({ staffNo: newNo, message: `Staff member ${newNo} added.` });
+    if (password) await account.SetPassword(newNo, password);
+    res.status(201).json({ staffNo: newNo, message: `Staff member ${newNo} added${password ? ' with a login password' : ''}.` });
   } catch (err) { next(err); }
 });
 
@@ -393,6 +438,10 @@ staffRouter.patch('/:no', async (req, res, next) => {
   try {
     const active = req.body?.Active;
     if (typeof active !== 'boolean') return res.status(400).json({ error: 'Active must be true or false.' });
+    // a manager cannot lock themselves out
+    if (!active && req.session.staffNo === req.staffNo) {
+      return res.status(409).json({ error: 'You cannot deactivate your own account.' });
+    }
     const all = new clsStaffCollection();
     all.ThisStaff.StaffNo = req.staffNo;
     if (!(await all.SetActive(active))) return res.status(404).json({ error: 'Staff member not found.' });
@@ -414,17 +463,84 @@ staffRouter.delete('/:no', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// set or reset a staff member's login password (managers only)
+staffRouter.put('/:no/password', async (req, res, next) => {
+  try {
+    const account = new clsStaffAccount();
+    const error = account.ValidPassword(req.body?.Password);
+    if (error) return res.status(400).json({ error });
+    if (!(await account.SetPassword(req.staffNo, req.body.Password))) {
+      return res.status(404).json({ error: 'Staff member not found.' });
+    }
+    res.json({ message: `Login password set for staff member ${req.staffNo}.` });
+  } catch (err) { next(err); }
+});
+
+// ---------- my details (every logged in staff member, Sushil) ----------
+// ordinary staff can see their own record and change only their phone number and password
+
+const myDetails = express.Router();
+app.use('/api/my-details', myDetails);
+
+// the logged in staff member's own record
+myDetails.use((req, res, next) => {
+  if (!req.session.staffNo) {
+    return res.status(404).json({ error: 'You are logged in with the Stock Manager account, which has no staff record. Log in with a staff email to see your details.' });
+  }
+  next();
+});
+
+myDetails.get('/', async (req, res, next) => {
+  try {
+    const staff = new clsStaff();
+    if (!(await staff.Find(req.session.staffNo))) return res.status(404).json({ error: 'Staff member not found.' });
+    res.json(staff);
+  } catch (err) { next(err); }
+});
+
+// change my phone number
+myDetails.put('/phone', async (req, res, next) => {
+  try {
+    const staff = new clsStaff();
+    const error = staff.ValidPhone(req.body?.Phone);
+    if (error) return res.status(400).json({ error });
+    const all = new clsStaffCollection();
+    all.ThisStaff.StaffNo = req.session.staffNo;
+    all.ThisStaff.Phone = String(req.body?.Phone || '').trim();
+    if (!(await all.UpdatePhone())) return res.status(404).json({ error: 'Staff member not found.' });
+    res.json({ message: 'Your phone number has been updated.' });
+  } catch (err) { next(err); }
+});
+
+// change my password (the current password must be given first)
+myDetails.put('/password', async (req, res, next) => {
+  try {
+    const staff = new clsStaff();
+    await staff.Find(req.session.staffNo);
+    const account = new clsStaffAccount();
+    if (!(await account.Login(staff.Email, req.body?.CurrentPassword))) {
+      return res.status(400).json({ error: 'Your current password is wrong.' });
+    }
+    const error = account.ValidPassword(req.body?.NewPassword);
+    if (error) return res.status(400).json({ error });
+    await account.SetPassword(req.session.staffNo, req.body.NewPassword);
+    res.json({ message: 'Your password has been changed.' });
+  } catch (err) { next(err); }
+});
+
 // friendly messages for database problems on the staff pages
-staffRouter.use((err, req, res, next) => {
+function staffErrors(err, req, res, next) {
   if (err.code === 'ER_DUP_ENTRY' || /Duplicate entry/i.test(err.message)) {
     return res.status(409).json({ error: 'That email address is already in use.' });
   }
   if (['ER_ACCESS_DENIED_ERROR', 'ER_BAD_DB_ERROR', 'ECONNREFUSED', 'ETIMEDOUT', 'ER_SP_DOES_NOT_EXIST', 'ER_NO_SUCH_TABLE'].includes(err.code)) {
     console.error('Staff Management MySQL:', err.code, err.message);
-    return res.status(503).json({ error: 'Staff Management needs the SparkClean MySQL database. Run database/05_staff_management.sql and check the server terminal.' });
+    return res.status(503).json({ error: 'Staff Management needs the SparkClean MySQL database. Run database/05_staff_management.sql and 06_staff_login.sql and check the server terminal.' });
   }
   next(err);
-});
+}
+staffRouter.use(staffErrors);
+myDetails.use(staffErrors);
 
 // change log: who added, edited or deleted which product and when (Sprint 5)
 app.get('/api/stocklog', async (req, res, next) => {

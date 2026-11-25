@@ -81,6 +81,15 @@ class clsStaff {
 
     return error.trim();
   }
+
+  // checks only the phone number (used when staff change their own phone number)
+  // returns "" if valid, otherwise the problem
+  ValidPhone(phone) {
+    const tel = phone === undefined || phone === null ? '' : String(phone).trim();
+    if (tel.length > 20) return 'The phone number must be 20 characters or fewer.';
+    if (tel !== '' && !/^[0-9+\-() ]+$/.test(tel)) return 'The phone number may only contain digits, spaces and + - ( ).';
+    return '';
+  }
 }
 
 // true if the text is a real calendar date in yyyy-mm-dd format

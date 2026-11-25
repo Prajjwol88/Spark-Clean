@@ -69,6 +69,16 @@ class clsStaffCollection {
     return found;
   }
 
+  // changes only the phone number of ThisStaff (staff may change their own phone number)
+  // returns false if they were not found
+  async UpdatePhone() {
+    const db = new clsDataConnection();
+    db.AddParameter('@StaffNo', this.ThisStaff.StaffNo);
+    db.AddParameter('@Phone', (this.ThisStaff.Phone || '').trim());
+    await db.Execute('sproc_tblStaff_UpdatePhone');
+    return Number(db.dataTable[0]?.Found) === 1;
+  }
+
   // deletes ThisStaff; an active staff member is never deleted (deactivate them first)
   // returns "Deleted", "StillActive" or "NotFound"
   async Delete() {

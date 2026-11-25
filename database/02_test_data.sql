@@ -38,3 +38,13 @@ INSERT IGNORE INTO tblStaff (FullName, Email, Phone, JobRole, StartDate, HourlyR
 ('Jamie Lee',      'jamie@example.com',  '33445566', 'Supervisor',   '2025-08-18', 170.00, FALSE, FALSE),
 ('Freja Hansen',   'freja@example.com',  '44556677', 'Cleaner',      '2026-05-04', 145.00, FALSE, TRUE),
 ('Mikkel Larsen',  'mikkel@example.com', '',         'Window Cleaner','2026-07-21', 155.50, FALSE, TRUE);
+
+-- ------------------------------------------------------------
+-- Staff login test data
+-- every test staff member has the demo password  Staff2026!
+-- (Jamie Lee is inactive, so Jamie cannot log in - useful for testing)
+-- ------------------------------------------------------------
+INSERT IGNORE INTO tblStaffAccount (StaffNo, PasswordHash)
+SELECT StaffNo, '5f75a21591cf23ce68b4ccfba5caf0ef:81cff491ec9ba7994b665ef06c0c0f2f5706c883d793aabb496296cf2fb378c38e28767a2b8a5933fa793f106d01b0878f428629a62c43e47a363ec4b7f48d57'
+FROM tblStaff
+WHERE Email IN ('alex@example.com', 'sam@example.com', 'jamie@example.com', 'freja@example.com', 'mikkel@example.com');

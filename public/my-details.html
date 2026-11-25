@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!-- Presentation layer: My Details page (every logged in staff member, Staff Management - Sushil) -->
+<!-- Staff can see their own record and change only their phone number and password -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Details - SparkClean Ltd</title>
+  <link rel="stylesheet" href="css/staff.css">
+</head>
+<body>
+<!-- page header: company name, navigation links and log out -->
+<header>
+  <div>
+    <div class="brand">SparkClean Ltd</div>
+    <p>My Details</p>
+  </div>
+  <nav><a href="menu.html">Main menu</a><a href="#" id="logout">Log out</a></nav>
+</header>
+
+<main class="narrow-page">
+  <h1>Hello, <span id="greeting">staff member</span></h1>
+  <p class="muted">These are your staff details. Ask a manager if anything other than your phone number is wrong.</p>
+
+  <!-- message box: e.g. "Your phone number has been updated." -->
+  <div class="message" id="message" role="status" hidden></div>
+
+  <!-- your record, read only (filled in by my-details.js) -->
+  <section class="panel">
+    <h2>Your record</h2>
+    <dl class="details" id="details"></dl>
+  </section>
+
+  <!-- change phone number: checked on the server with clsStaff.ValidPhone -->
+  <section class="panel">
+    <h2>Change your phone number</h2>
+    <form id="phoneForm" novalidate>
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input id="phone" name="Phone" maxlength="20" placeholder="e.g. +45 12 34 56 78">
+      </div>
+      <div class="error" id="phoneError" role="alert" hidden></div>
+      <div class="form-actions"><button type="submit" class="primary">Save phone number</button></div>
+    </form>
+  </section>
+
+  <!-- change password: the current password must be right (clsStaffAccount.Login, then SetPassword) -->
+  <section class="panel">
+    <h2>Change your password</h2>
+    <form id="passwordForm" novalidate>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="currentPassword">Current password</label>
+          <input id="currentPassword" type="password" autocomplete="current-password">
+        </div>
+        <div class="field">
+          <label for="newPassword">New password</label>
+          <input id="newPassword" type="password" maxlength="50" autocomplete="new-password" placeholder="8+ letters and numbers">
+        </div>
+        <div class="field">
+          <label for="repeatPassword">Repeat new password</label>
+          <input id="repeatPassword" type="password" maxlength="50" autocomplete="new-password">
+        </div>
+      </div>
+      <div class="error" id="passwordError" role="alert" hidden></div>
+      <div class="form-actions"><button type="submit" class="primary">Change password</button></div>
+    </form>
+  </section>
+</main>
+
+<!-- shared helpers, then the script for this page -->
+<script src="js/common.js"></script>
+<script src="js/my-details.js"></script>
+</body>
+</html>

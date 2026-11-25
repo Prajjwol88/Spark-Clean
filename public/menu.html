@@ -14,7 +14,8 @@
     <a href="stock.html"><strong>Stock Management</strong>Add, edit, delete, find and filter products</a>
     <a href="stock.html?report=low"><strong>Low Stock Report</strong>Products that need reordering</a>
     <a href="client.html"><strong>Client Management</strong>Register, edit and manage clients</a>
-    <a href="staff.html"><strong>Staff Management</strong>Add, edit, find and deactivate staff members</a>
+    <a href="staff.html" id="staffMenuLink"><strong>Staff Management</strong>Add, edit, find and deactivate staff members</a>
+    <a href="my-details.html"><strong>My Details</strong>See your staff record, change your phone number and password</a>
     <a href="stock-log.html"><strong>Change Log</strong>Who added, edited or deleted products and when</a>
     <a href="shop.html"><strong>View Shop</strong>See the website as a client</a>
   </div>
@@ -22,7 +23,11 @@
 <script src="js/common.js"></script>
 <script>
   // show who is logged in
-  getJson('/api/me').then((data) => { document.getElementById('staffUser').textContent = data.staffUser; });
+  getJson('/api/me').then((data) => {
+    document.getElementById('staffUser').textContent = data.staffUser;
+    // Staff Management is only for managers
+    if (!data.isManager) document.getElementById('staffMenuLink').style.display = 'none';
+  });
 </script>
 </body>
 </html>
